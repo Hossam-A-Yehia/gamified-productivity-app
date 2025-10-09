@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from 'formik';
 import { useAuth } from '../../../hooks/useAuth';
 import { ROUTES } from '../../../utils/constants';
-import type { FormData } from './utils';
 import { validationSchema, initialValues, createHandleSubmit } from './utils';
 import StatsCards from './StatsCards';
+import ErrorMessage from '../../../components/common/ErrorMessage';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ errors, touched, isSubmitting }) => (
+            {({ errors, touched, isSubmitting, isValid, dirty }) => (
               <Form className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -82,7 +82,7 @@ const Login: React.FC = () => {
                       />
                     )}
                   </Field>
-                  <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
+                  <FormikErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -112,7 +112,7 @@ const Login: React.FC = () => {
                       {showPassword ? '👁️' : '👁️‍🗨️'}
                     </button>
                   </div>
-                  <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
+                  <FormikErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
                 <div className="flex items-center justify-between">
                   <Field name="rememberMe">
@@ -142,28 +142,12 @@ const Login: React.FC = () => {
                   </Link>
                 </div>
 
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
-                    >
-                      <div className="flex items-center">
-                        <span className="text-red-500 mr-2">⚠️</span>
-                        <p className="text-red-700 dark:text-red-400 text-sm">
-                          {error}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <ErrorMessage message={error} />
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  disabled={isLoggingIn || isSubmitting}
+                  disabled={isLoggingIn || isSubmitting || !isValid || !dirty}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                   {isLoggingIn || isSubmitting ? (

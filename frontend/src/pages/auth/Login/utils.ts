@@ -11,7 +11,11 @@ export const validationSchema = Yup.object({
     .email('Please enter a valid email address')
     .required('Email is required'),
   password: Yup.string()
-    .min(1, 'Password is required')
+    .min(8, 'Password must be at least 8 characters long')
+    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/\d/, 'Password must contain at least one number')
+    .matches(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/, 'Password must contain at least one symbol')
     .required('Password is required'),
   rememberMe: Yup.boolean()
 });

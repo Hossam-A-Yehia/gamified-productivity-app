@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from "formik";
 import { useAuth } from "../../../hooks/useAuth";
 import ProgressBar from "../../../components/common/ProgressBar";
 import ConfettiPopup from "../../../components/common/ConfettiPopup";
@@ -16,6 +16,7 @@ import {
   getPasswordStrengthText,
 } from "./utils";
 import FeatureCards from "./FeatureCards";
+import ErrorMessage from "../../../components/common/ErrorMessage";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -94,7 +95,7 @@ const Register: React.FC = () => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ values, errors, touched, isSubmitting }) => (
+            {({ values, errors, touched, isSubmitting, isValid, dirty }) => (
               <Form className="space-y-6">
                 <AnimatePresence mode="wait">
                   {currentStep === 0 && (
@@ -125,7 +126,7 @@ const Register: React.FC = () => {
                             />
                           )}
                         </Field>
-                        <ErrorMessage
+                        <FormikErrorMessage
                           name="name"
                           component="div"
                           className="text-red-500 text-sm mt-1"
@@ -150,7 +151,7 @@ const Register: React.FC = () => {
                             />
                           )}
                         </Field>
-                        <ErrorMessage
+                        <FormikErrorMessage
                           name="email"
                           component="div"
                           className="text-red-500 text-sm mt-1"
@@ -233,7 +234,7 @@ const Register: React.FC = () => {
                             />
                           </motion.div>
                         )}
-                        <ErrorMessage
+                        <FormikErrorMessage
                           name="password"
                           component="div"
                           className="text-red-500 text-sm mt-1"
@@ -270,7 +271,7 @@ const Register: React.FC = () => {
                             {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
                           </button>
                         </div>
-                        <ErrorMessage
+                        <FormikErrorMessage
                           name="confirmPassword"
                           component="div"
                           className="text-red-500 text-sm mt-1"
@@ -280,23 +281,7 @@ const Register: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
-                    >
-                      <div className="flex items-center">
-                        <span className="text-red-500 mr-2">⚠️</span>
-                        <p className="text-red-700 dark:text-red-400 text-sm">
-                          {error}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <ErrorMessage message={error} />
                 <div className="flex gap-4">
                   {currentStep > 0 && (
                     <motion.button
@@ -320,7 +305,8 @@ const Register: React.FC = () => {
                           setCurrentStep(currentStep + 1);
                         }
                       }}
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium"
+                      disabled={!validateCurrentStep(values, currentStep)}
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Next
                     </motion.button>
@@ -329,7 +315,7 @@ const Register: React.FC = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       type="submit"
-                      disabled={isRegistering || isSubmitting}
+                      disabled={isRegistering || isSubmitting || !isValid || !dirty}
                       className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isRegistering || isSubmitting ? (
