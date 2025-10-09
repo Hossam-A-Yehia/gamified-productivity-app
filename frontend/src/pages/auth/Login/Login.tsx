@@ -23,13 +23,73 @@ const Login: React.FC = () => {
   const handleSubmit = createHandleSubmit(login);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 flex items-center justify-center p-4 relative overflow-hidden">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
+        className="absolute top-20 left-10 w-32 h-32 bg-blue-300/20 dark:bg-blue-400/10 rounded-full blur-2xl"
+        animate={{
+          y: [0, -30, 0],
+          x: [0, 20, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+      />
+      <motion.div
+        className="absolute top-1/3 right-16 w-24 h-24 bg-purple-300/20 dark:bg-purple-400/10 rounded-full blur-2xl"
+        animate={{
+          y: [0, 25, 0],
+          x: [0, -15, 0],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1
+        }}
+      />
+      <motion.div
+        className="absolute bottom-32 left-1/4 w-28 h-28 bg-indigo-300/20 dark:bg-indigo-400/10 rounded-full blur-2xl"
+        animate={{
+          y: [0, -20, 0],
+          x: [0, 25, 0],
+        }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 2
+        }}
+      />
+      
+      <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative z-10">
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="hidden lg:flex flex-col space-y-6"
+        >
+          <StatsCards side="left" />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ 
+            opacity: 1, 
+            y: [0, -8, 0]
+          }}
+          transition={{ 
+            opacity: { duration: 0.5 },
+            y: {
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5
+            }
+          }}
+          className="w-full max-w-md mx-auto"
+        >
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -38,11 +98,35 @@ const Login: React.FC = () => {
         >
           <motion.div
             initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            animate={{ 
+              scale: 1,
+              rotate: [0, 2, -2, 0]
+            }}
+            transition={{ 
+              scale: { delay: 0.2, type: 'spring', stiffness: 200 },
+              rotate: {
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1
+              }
+            }}
             className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
-            <span className="text-2xl font-bold text-white">🎮</span>
+            <motion.span 
+              className="text-2xl font-bold text-white"
+              animate={{
+                scale: [1, 1.1, 1]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 2
+              }}
+            >
+              🎮
+            </motion.span>
           </motion.div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome Back!
@@ -175,8 +259,28 @@ const Login: React.FC = () => {
             </p>
           </motion.div>
         </motion.div>
-        <StatsCards />
-      </motion.div>
+        </motion.div>
+
+        {/* Right Stats */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="hidden lg:flex flex-col space-y-6"
+        >
+          <StatsCards side="right" />
+        </motion.div>
+
+        {/* Mobile Stats - shown below form on smaller screens */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="lg:hidden col-span-1 mt-8"
+        >
+          <StatsCards side="mobile" />
+        </motion.div>
+      </div>
     </div>
   );
 };
