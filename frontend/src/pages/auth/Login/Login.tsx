@@ -220,7 +220,7 @@ const Login: React.FC = () => {
                   </Field>
 
                   <Link
-                    to="/forgot-password"
+                    to={ROUTES.FORGOT_PASSWORD}
                     className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
                   >
                     Forgot password?

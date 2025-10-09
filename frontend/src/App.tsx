@@ -7,6 +7,8 @@ import { ROUTES } from './utils/constants';
 
 import Login from './pages/auth/Login/Login';
 import Register from './pages/auth/Register/Register';
+import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword/ResetPassword';
 import Dashboard from './pages/Dashboard';
 
 const queryClient = new QueryClient({
@@ -86,6 +88,22 @@ const AppRoutes: React.FC = () => {
           element={
             <PublicRoute>
               <Register />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path={ROUTES.FORGOT_PASSWORD}
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path={ROUTES.RESET_PASSWORD}
+          element={
+            <PublicRoute>
+              <ResetPassword />
             </PublicRoute>
           }
         />

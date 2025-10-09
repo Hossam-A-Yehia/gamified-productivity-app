@@ -148,6 +148,43 @@ class AuthService {
       errors,
     };
   }
+
+  static async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiService.post('/auth/forgot-password', { email });
+      return {
+        success: true,
+        message: response.data.message || 'Password reset email sent successfully'
+      };
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to send password reset email');
+    }
+  }
+
+  static async verifyResetToken(token: string): Promise<{ isValid: boolean }> {
+    try {
+      await apiService.get(`/auth/verify-reset-token/${token}`);
+      return { isValid: true };
+    } catch (error: any) {
+      return { isValid: false };
+    }
+  }
+
+  static async resetPassword(token: string, password: string, confirmPassword: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await apiService.post('/auth/reset-password', {
+        token,
+        password,
+        confirmPassword
+      });
+      return {
+        success: true,
+        message: response.data.message || 'Password reset successfully'
+      };
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to reset password');
+    }
+  }
 }
 
 export const authService = AuthService;
