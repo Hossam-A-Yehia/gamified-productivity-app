@@ -5,6 +5,7 @@ import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from "formik"
 import { useAuth } from "../../../hooks/useAuth";
 import ProgressBar from "../../../components/common/ProgressBar";
 import ConfettiPopup from "../../../components/common/ConfettiPopup";
+import GoogleSignIn from "../../../components/auth/GoogleSignIn";
 import { ROUTES } from "../../../utils/constants";
 import type { FormData } from "./utils";
 import {
@@ -408,6 +409,33 @@ const Register: React.FC = () => {
               </Form>
             )}
           </Formik>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="mt-6"
+          >
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <GoogleSignIn
+                text="signup_with"
+                onSuccess={() => navigate(ROUTES.DASHBOARD)}
+                onError={(error) => console.error('Google Sign-Up failed:', error)}
+              />
+            </div>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

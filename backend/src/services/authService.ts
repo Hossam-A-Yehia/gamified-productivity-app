@@ -265,4 +265,107 @@ export class AuthService {
 
     return !!user;
   }
+
+  static async googleAuth(googleToken: string): Promise<{ user: IUser; tokens: { accessToken: string; refreshToken: string } }> {
+    try {
+      const { OAuth2Client } = await import('google-auth-library');
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      
+      const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      
+      const payload = ticket.getPayload();
+      if (!payload || !payload.email || !payload.sub) {
+        throw new Error('Invalid Google token payload');
+      }
+
+      const googleUser = {
+        id: payload.sub,
+        email: payload.email,
+        name: payload.name || payload.email.split('@')[0],
+        picture: payload.picture
+      };
+
+      let user = await User.findOne({ 
+        $or: [
+          { googleId: googleUser.id },
+          { email: googleUser.email.toLowerCase() }
+        ]
+      });
+
+      if (user) {
+        if (!user.googleId) {
+          user.googleId = googleUser.id;
+          await user.save();
+        }
+      } else {
+        user = new User({
+          name: googleUser.name || googleUser.email.split('@')[0],
+          email: googleUser.email.toLowerCase(),
+          googleId: googleUser.id,
+          avatarUrl: googleUser.picture,
+          emailVerified: true,
+          level: 1,
+          xp: 0,
+          coins: 100,
+          streak: 0,
+          lastActiveDate: new Date(),
+          avatarCustomization: {
+            accessories: [],
+          },
+          achievements: [],
+          friends: [],
+          friendRequests: {
+            sent: [],
+            received: [],
+          },
+          settings: {
+            notifications: {
+              email: true,
+              push: true,
+              inApp: true,
+            },
+            privacy: {
+              profileVisibility: 'friends',
+              showOnLeaderboard: true,
+            },
+            preferences: {
+              theme: 'system',
+              language: 'en',
+              timezone: 'UTC',
+            },
+          },
+          stats: {
+            tasksCompleted: 0,
+            totalFocusTime: 0,
+            longestStreak: 0,
+            challengesCompleted: 0,
+          },
+        });
+
+        await user.save();
+      }
+
+      const accessToken = this.generateAccessToken({ 
+        userId: (user._id as any).toString(), 
+        email: user.email 
+      });
+      const refreshToken = this.generateRefreshToken({ 
+        userId: (user._id as any).toString(), 
+        email: user.email 
+      });
+
+      return {
+        user,
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
+      };
+    } catch (error: any) {
+      throw new Error(error.message || 'Google authentication failed');
+    }
+  }
 }

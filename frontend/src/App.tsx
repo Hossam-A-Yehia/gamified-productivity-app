@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from './hooks/useAuth';
 import { ROUTES } from './utils/constants';
+import GoogleOAuthProvider from './components/providers/GoogleOAuthProvider';
 
 import Login from './pages/auth/Login/Login';
 import Register from './pages/auth/Register/Register';
@@ -117,7 +118,6 @@ const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
-
         {/* Redirect root to dashboard */}
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
@@ -131,11 +131,13 @@ const AppRoutes: React.FC = () => {
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="App">
-          <AppRoutes />
-        </div>
-      </Router>
+      <GoogleOAuthProvider>
+        <Router>
+          <div className="App">
+            <AppRoutes />
+          </div>
+        </Router>
+      </GoogleOAuthProvider>
     </QueryClientProvider>
   );
 };

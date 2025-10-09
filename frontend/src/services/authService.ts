@@ -185,6 +185,26 @@ class AuthService {
       throw new Error(error.response?.data?.message || 'Failed to reset password');
     }
   }
+
+  static async googleAuth(googleToken: string): Promise<AuthResponse> {
+    try {
+      const response = await apiService.post<AuthResponse["data"]>(
+        "/auth/google",
+        { token: googleToken }
+      );
+
+      if (response.data.data?.tokens) {
+        AuthService.setTokens(
+          response.data.data.tokens.accessToken,
+          response.data.data.tokens.refreshToken
+        );
+      }
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Google authentication failed");
+    }
+  }
 }
 
 export const authService = AuthService;

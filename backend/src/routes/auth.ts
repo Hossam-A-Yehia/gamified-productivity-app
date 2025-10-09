@@ -29,4 +29,6 @@ router.post('/reset-password', validateResetPassword, AuthController.resetPasswo
 
 router.get('/verify-reset-token/:token', AuthController.verifyResetToken);
 
+router.post('/google', AuthController.googleAuth);
+
 export default router;

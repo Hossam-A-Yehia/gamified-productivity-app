@@ -10,11 +10,13 @@ interface UseAuthReturn {
   error: string | null;
   register: (data: RegisterRequest) => Promise<void>;
   login: (data: LoginRequest) => Promise<void>;
+  googleAuth: (token: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   isRegistering: boolean;
   isLoggingIn: boolean;
   isLoggingOut: boolean;
+  isGoogleAuthenticating: boolean;
 }
 
 export const useAuth = (): UseAuthReturn => {
@@ -55,6 +57,17 @@ export const useAuth = (): UseAuthReturn => {
     },
   });
 
+  const googleAuthMutation = useMutation({
+    mutationFn: authService.googleAuth,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auth'] });
+      setError(null);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
+
   const logoutMutation = useMutation({
     mutationFn: authService.logout,
     onSuccess: () => {
@@ -80,6 +93,13 @@ export const useAuth = (): UseAuthReturn => {
     [loginMutation]
   );
 
+  const googleAuth = useCallback(
+    async (token: string) => {
+      await googleAuthMutation.mutateAsync(token);
+    },
+    [googleAuthMutation]
+  );
+
   const logout = useCallback(async () => {
     await logoutMutation.mutateAsync();
   }, [logoutMutation]);
@@ -101,10 +121,12 @@ export const useAuth = (): UseAuthReturn => {
     error,
     register,
     login,
+    googleAuth,
     logout,
     clearError,
     isRegistering: registerMutation.isPending,
     isLoggingIn: loginMutation.isPending,
+    isGoogleAuthenticating: googleAuthMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
   };
 };

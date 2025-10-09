@@ -296,4 +296,51 @@ export class AuthController {
       });
     }
   });
+
+  static googleAuth = asyncHandler(async (
+    req: Request<{}, ApiResponse, { token: string }>,
+    res: Response<ApiResponse>
+  ) => {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google token is required'
+      });
+    }
+
+    try {
+      const { user, tokens } = await AuthService.googleAuth(token);
+
+      res.status(200).json({
+        success: true,
+        message: 'Google authentication successful',
+        data: {
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            level: user.level,
+            xp: user.xp,
+            coins: user.coins,
+            streak: user.streak,
+            avatarUrl: user.avatarUrl,
+            avatarCustomization: user.avatarCustomization,
+            achievements: user.achievements,
+            settings: user.settings,
+            stats: user.stats,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+          },
+          tokens
+        }
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: (error as Error).message
+      });
+    }
+  });
 }
