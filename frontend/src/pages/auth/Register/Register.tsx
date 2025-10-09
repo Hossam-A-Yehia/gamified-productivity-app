@@ -17,6 +17,7 @@ import {
 } from "./utils";
 import FeatureCards from "./FeatureCards";
 import ErrorMessage from "../../../components/common/ErrorMessage";
+import Button from "../../../components/common/Button";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -284,49 +285,38 @@ const Register: React.FC = () => {
                 <ErrorMessage message={error} />
                 <div className="flex gap-4">
                   {currentStep > 0 && (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
+                    <Button
+                      variant="outline"
                       onClick={() => setCurrentStep(currentStep - 1)}
-                      className="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className="flex-1"
                     >
                       Back
-                    </motion.button>
+                    </Button>
                   )}
 
                   {currentStep < formSteps.length - 1 ? (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="button"
+                    <Button
+                      variant="primary"
                       onClick={() => {
                         if (validateCurrentStep(values, currentStep)) {
                           setCurrentStep(currentStep + 1);
                         }
                       }}
                       disabled={!validateCurrentStep(values, currentStep)}
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1"
                     >
                       Next
-                    </motion.button>
+                    </Button>
                   ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <Button
                       type="submit"
+                      variant="primary"
                       disabled={isRegistering || isSubmitting || !isValid || !dirty}
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      loading={isRegistering || isSubmitting}
+                      className="flex-1"
                     >
-                      {isRegistering || isSubmitting ? (
-                        <div className="flex items-center justify-center">
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Creating Account...
-                        </div>
-                      ) : (
-                        "Create Account 🚀"
-                      )}
-                    </motion.button>
+                      Create Account 🚀
+                    </Button>
                   )}
                 </div>
               </Form>
