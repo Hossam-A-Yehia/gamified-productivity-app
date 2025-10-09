@@ -20,6 +20,21 @@ export class AuthController {
         password
       });
 
+      // Set HTTP-only cookies for tokens
+      res.cookie('accessToken', tokens.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000 // 15 minutes
+      });
+
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+
       res.status(201).json({
         success: true,
         message: 'User registered successfully',
@@ -43,8 +58,7 @@ export class AuthController {
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: 'Registration failed',
-        error: (error as Error).message
+        message: (error as Error).message
       });
     }
   });
@@ -54,15 +68,27 @@ export class AuthController {
     req: Request<{}, ApiResponse, LoginRequest>,
     res: Response<ApiResponse>
   ) => {
-    console.log('Login request body:', req.body);
-    console.log('Login request content-type:', req.get('Content-Type'));
-    
     const { email, password } = req.body;
 
     try {
       const { user, tokens } = await AuthService.login({
         email,
         password
+      });
+
+      // Set HTTP-only cookies for tokens
+      res.cookie('accessToken', tokens.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000 // 15 minutes
+      });
+
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
 
       res.status(200).json({
@@ -88,8 +114,7 @@ export class AuthController {
     } catch (error) {
       res.status(401).json({
         success: false,
-        message: 'Login failed',
-        error: (error as Error).message
+        message: (error as Error).message
       });
     }
   });
@@ -112,8 +137,7 @@ export class AuthController {
     } catch (error) {
       res.status(401).json({
         success: false,
-        message: 'Token refresh failed',
-        error: (error as Error).message
+        message: (error as Error).message
       });
     }
   });

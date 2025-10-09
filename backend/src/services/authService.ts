@@ -9,7 +9,6 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 
 export class AuthService {
-  // Generate access token
   static generateAccessToken(payload: JWTPayload): string {
     return (jwt as any).sign(
       { userId: payload.userId, email: payload.email }, 
@@ -18,7 +17,6 @@ export class AuthService {
     );
   }
 
-  // Generate refresh token
   static generateRefreshToken(payload: JWTPayload): string {
     return (jwt as any).sign(
       { userId: payload.userId, email: payload.email }, 
@@ -27,48 +25,39 @@ export class AuthService {
     );
   }
 
-  // Verify access token
   static verifyAccessToken(token: string): JWTPayload {
     return jwt.verify(token, JWT_SECRET) as JWTPayload;
   }
 
-  // Verify refresh token
   static verifyRefreshToken(token: string): JWTPayload {
     return jwt.verify(token, JWT_REFRESH_SECRET) as JWTPayload;
   }
 
-  // Hash password
   static async hashPassword(password: string): Promise<string> {
     const saltRounds = 12;
     return bcrypt.hash(password, saltRounds);
   }
 
-  // Compare password
   static async comparePassword(password: string, hashedPassword: string): Promise<boolean> {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  // Register new user
   static async register(userData: RegisterRequest): Promise<{ user: IUser; tokens: { accessToken: string; refreshToken: string } }> {
     const { name, email, password } = userData;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       throw new Error('User already exists with this email');
     }
-
-    // Hash password
     const hashedPassword = await this.hashPassword(password);
 
-    // Create new user
     const user = new User({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       level: 1,
       xp: 0,
-      coins: 100, // Starting coins
+      coins: 100,
       streak: 0,
       lastActiveDate: new Date(),
       achievements: [],
@@ -196,12 +185,6 @@ export class AuthService {
   // Get user by ID
   static async getUserById(userId: string): Promise<IUser | null> {
     return User.findById(userId);
-  }
-
-  // Validate email format
-  static validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   }
 
   // Validate password strength

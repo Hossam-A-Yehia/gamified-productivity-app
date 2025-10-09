@@ -1,18 +1,11 @@
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
-// import helmet from "helmet"; // TODO: Install helmet package
-// import rateLimit from "express-rate-limit"; // TODO: Install express-rate-limit package
-
-// Import configurations
+// Note: cookie-parser needs to be installed first
+// import cookieParser from "cookie-parser";
 import { connectMongoDB } from "./config/database";
-import { connectRedis, redis } from "./config/redis";
-
-// Import routes
+import { connectRedis } from "./config/redis";
 import authRoutes from "./routes/auth";
-
-// Import middlewares
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 // Load environment variables
@@ -37,13 +30,20 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: [
+    process.env.FRONTEND_URL || "http://localhost:5173",
+    "http://localhost:3000", // React default port
+    "http://localhost:5173", // Vite default port
+  ],
   credentials: true
 }));
 
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Cookie parsing middleware (commented out until cookie-parser is installed)
+// app.use(cookieParser());
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -62,8 +62,6 @@ app.get("/api/health", (_, res) => {
     success: true,
     message: "Server is healthy",
     data: {
-      mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-      redis: redis.status,
       uptime: process.uptime(),
       timestamp: new Date().toISOString()
     }

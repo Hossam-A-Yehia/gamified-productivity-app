@@ -1,0 +1,205 @@
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useAuth } from '../../../hooks/useAuth';
+import { ROUTES } from '../../../utils/constants';
+import type { FormData } from './utils';
+import { validationSchema, initialValues, createHandleSubmit } from './utils';
+import StatsCards from './StatsCards';
+
+const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const { login, isLoggingIn, error, isAuthenticated } = useAuth();
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(ROUTES.DASHBOARD);
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = createHandleSubmit(login);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+            className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+          >
+            <span className="text-2xl font-bold text-white">🎮</span>
+          </motion.div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Welcome Back!
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Continue your productivity journey
+          </p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700"
+        >
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ errors, touched, isSubmitting }) => (
+              <Form className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email Address
+                  </label>
+                  <Field name="email">
+                    {({ field }: any) => (
+                      <motion.input
+                        {...field}
+                        whileFocus={{ scale: 1.02 }}
+                        type="email"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200 ${
+                          errors.email && touched.email
+                            ? 'border-red-500 dark:border-red-500'
+                            : 'border-gray-300 dark:border-gray-600'
+                        }`}
+                        placeholder="Enter your email"
+                      />
+                    )}
+                  </Field>
+                  <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Field name="password">
+                      {({ field }: any) => (
+                        <motion.input
+                          {...field}
+                          whileFocus={{ scale: 1.02 }}
+                          type={showPassword ? 'text' : 'password'}
+                          className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200 ${
+                            errors.password && touched.password
+                              ? 'border-red-500 dark:border-red-500'
+                              : 'border-gray-300 dark:border-gray-600'
+                          }`}
+                          placeholder="Enter your password"
+                        />
+                      )}
+                    </Field>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      {showPassword ? '👁️' : '👁️‍🗨️'}
+                    </button>
+                  </div>
+                  <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Field name="rememberMe">
+                    {({ field }: any) => (
+                      <motion.label
+                        whileHover={{ scale: 1.02 }}
+                        className="flex items-center cursor-pointer"
+                      >
+                        <input
+                          {...field}
+                          type="checkbox"
+                          checked={field.value}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        />
+                        <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                          Remember me
+                        </span>
+                      </motion.label>
+                    )}
+                  </Field>
+
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+                    >
+                      <div className="flex items-center">
+                        <span className="text-red-500 mr-2">⚠️</span>
+                        <p className="text-red-700 dark:text-red-400 text-sm">
+                          {error}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isLoggingIn || isSubmitting}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                >
+                  {isLoggingIn || isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      Signing in...
+                    </div>
+                  ) : (
+                    'Sign In'
+                  )}
+                </motion.button>
+              </Form>
+            )}
+          </Formik>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="mt-6 text-center"
+          >
+            <p className="text-gray-600 dark:text-gray-400">
+              Don't have an account?{' '}
+              <Link
+                to={ROUTES.REGISTER}
+                className="text-blue-500 hover:text-blue-600 font-medium transition-colors"
+              >
+                Sign up
+              </Link>
+            </p>
+          </motion.div>
+        </motion.div>
+        <StatsCards />
+      </motion.div>
+    </div>
+  );
+};
+
+export default Login;
