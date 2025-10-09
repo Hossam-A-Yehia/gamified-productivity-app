@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
 import { RegisterRequest, LoginRequest, JWTPayload } from '../types/auth';
@@ -112,7 +113,6 @@ export class AuthService {
     };
   }
 
-  // Login user
   static async login(loginData: LoginRequest): Promise<{ user: IUser; tokens: { accessToken: string; refreshToken: string } }> {
     const { email, password } = loginData;
 
@@ -153,7 +153,6 @@ export class AuthService {
     };
   }
 
-  // Refresh access token
   static async refreshToken(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
     try {
       const payload = this.verifyRefreshToken(refreshToken);
@@ -187,7 +186,6 @@ export class AuthService {
     return User.findById(userId);
   }
 
-  // Validate password strength
   static validatePassword(password: string): { isValid: boolean; message?: string } {
     if (password.length < 8) {
       return { isValid: false, message: 'Password must be at least 8 characters long' };
@@ -206,5 +204,65 @@ export class AuthService {
     }
     
     return { isValid: true };
+  }
+
+  static async forgotPassword(email: string): Promise<void> {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+        return;
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    
+    await user.save();
+
+    const emailService = require('./emailService').default;
+    await emailService.sendPasswordResetEmail(user.email, resetToken, user.name);
+  }
+
+  static async resetPassword(token: string, newPassword: string): Promise<void> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      throw new Error('Password reset token is invalid or has expired');
+    }
+
+    const passwordValidation = this.validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      throw new Error(passwordValidation.message || 'Invalid password');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    
+    await user.save();
+
+    const emailService = require('./emailService').default;
+    await emailService.sendPasswordResetConfirmation(user.email, user.name);
+  }
+
+  static async verifyResetToken(token: string): Promise<boolean> {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() }
+    });
+
+    return !!user;
   }
 }

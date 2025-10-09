@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../types/express';
 
-// Simple validation functions without external dependencies
 export const validateRegister = (req: Request, res: Response<ApiResponse>, next: NextFunction) => {
   const { name, email, password, confirmPassword } = req.body;
   
@@ -14,7 +13,6 @@ export const validateRegister = (req: Request, res: Response<ApiResponse>, next:
     });
   }
   
-  // Validate name
   if (typeof name !== 'string' || name.trim().length < 2) {
     return res.status(400).json({
       success: false,
@@ -42,7 +40,6 @@ export const validateRegister = (req: Request, res: Response<ApiResponse>, next:
     });
   }
   
-  // Check password strength - must contain letters, numbers, and symbols
   const hasLowerCase = /[a-z]/.test(password);
   const hasUpperCase = /[A-Z]/.test(password);
   const hasNumbers = /\d/.test(password);
@@ -101,6 +98,86 @@ export const validateRefreshToken = (req: Request, res: Response<ApiResponse>, n
       success: false,
       message: 'Refresh token is required',
       error: 'Missing refresh token'
+    });
+  }
+  
+  next();
+};
+
+export const validateForgotPassword = (req: Request, res: Response<ApiResponse>, next: NextFunction) => {
+  const { email } = req.body;
+  
+  // Check required field
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email is required',
+      error: 'Missing email field'
+    });
+  }
+  
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid email format',
+      error: 'Please provide a valid email address'
+    });
+  }
+  
+  next();
+};
+
+export const validateResetPassword = (req: Request, res: Response<ApiResponse>, next: NextFunction) => {
+  const { token, password, confirmPassword } = req.body;
+  
+  // Check required fields
+  if (!token || !password || !confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Token, password, and confirm password are required',
+      error: 'Missing required fields'
+    });
+  }
+  
+  if (typeof token !== 'string' || token.length !== 64 || !/^[a-f0-9]+$/i.test(token)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid reset token format',
+      error: 'Reset token must be a valid hex string'
+    });
+  }
+  
+  // Validate password
+  if (password.length < 8) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid password',
+      error: 'Password must be at least 8 characters long'
+    });
+  }
+  
+  // Check password strength
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password);
+  
+  if (!hasLowerCase || !hasUpperCase || !hasNumbers || !hasSymbols) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid password',
+      error: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one symbol'
+    });
+  }
+  
+  // Check password confirmation
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password confirmation failed',
+      error: 'Passwords do not match'
     });
   }
   

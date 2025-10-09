@@ -41,6 +41,8 @@ export interface IUser extends Document {
     longestStreak: number;
     averageTasksPerDay: number;
   };
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -62,7 +64,7 @@ const userSchema = new Schema<IUser>({
   password: {
     type: String,
     required: function(this: IUser) {
-      return !this.googleId; // Password required only if not using Google OAuth
+      return !this.googleId;
     }
   },
   googleId: {
@@ -183,18 +185,25 @@ const userSchema = new Schema<IUser>({
       default: 0,
       min: 0
     }
+  },
+  resetPasswordToken: {
+    type: String,
+    default: null
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null
   }
 }, {
-  timestamps: true, // Automatically adds createdAt and updatedAt
+  timestamps: true,
   toJSON: {
     transform: function(doc: any, ret: any) {
-      delete ret.password; // Never return password in JSON
+      delete ret.password;
       return ret;
     }
   }
 });
 
-// Index for performance
 userSchema.index({ email: 1 });
 userSchema.index({ googleId: 1 });
 userSchema.index({ level: -1 });

@@ -5,7 +5,6 @@ import { ApiResponse, AuthenticatedRequest } from '../types/express';
 import { asyncHandler } from '../middlewares/errorHandler';
 
 export class AuthController {
-  // Register new user
   static register = asyncHandler(async (
     req: Request<{}, ApiResponse, RegisterRequest>,
     res: Response<ApiResponse>
@@ -63,7 +62,6 @@ export class AuthController {
     }
   });
 
-  // Login user
   static login = asyncHandler(async (
     req: Request<{}, ApiResponse, LoginRequest>,
     res: Response<ApiResponse>
@@ -119,7 +117,6 @@ export class AuthController {
     }
   });
 
-  // Refresh access token
   static refreshToken = asyncHandler(async (
     req: Request<{}, ApiResponse, RefreshTokenRequest>,
     res: Response<ApiResponse>
@@ -142,13 +139,10 @@ export class AuthController {
     }
   });
 
-  // Logout user (client-side token removal)
   static logout = asyncHandler(async (
     req: AuthenticatedRequest,
     res: Response<ApiResponse>
   ) => {
-    // In a more advanced implementation, you might want to blacklist the token
-    // For now, we'll just return a success message as the client will remove the token
     
     res.status(200).json({
       success: true,
@@ -156,7 +150,6 @@ export class AuthController {
     });
   });
 
-  // Get current user profile
   static getProfile = asyncHandler(async (
     req: AuthenticatedRequest,
     res: Response<ApiResponse>
@@ -194,39 +187,113 @@ export class AuthController {
     });
   });
 
-  // Verify email (placeholder for future implementation)
   static verifyEmail = asyncHandler(async (
     req: Request<{}, ApiResponse, { token: string }>,
     res: Response<ApiResponse>
   ) => {
-    // TODO: Implement email verification logic
     res.status(200).json({
       success: true,
       message: 'Email verification endpoint - to be implemented'
     });
   });
 
-  // Forgot password (placeholder for future implementation)
   static forgotPassword = asyncHandler(async (
     req: Request<{}, ApiResponse, { email: string }>,
     res: Response<ApiResponse>
   ) => {
-    // TODO: Implement forgot password logic with email sending
-    res.status(200).json({
-      success: true,
-      message: 'Forgot password endpoint - to be implemented'
-    });
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    try {
+      await AuthService.forgotPassword(email);
+      
+      res.status(200).json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent'
+      });
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'An error occurred while processing your request',
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+      });
+    }
   });
 
-  // Reset password (placeholder for future implementation)
   static resetPassword = asyncHandler(async (
     req: Request<{}, ApiResponse, { token: string; password: string; confirmPassword: string }>,
     res: Response<ApiResponse>
   ) => {
-    // TODO: Implement password reset logic
-    res.status(200).json({
-      success: true,
-      message: 'Reset password endpoint - to be implemented'
-    });
+    const { token, password, confirmPassword } = req.body;
+
+    if (!token || !password || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token, password, and confirm password are required'
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Passwords do not match'
+      });
+    }
+
+    try {
+      await AuthService.resetPassword(token, password);
+      
+      res.status(200).json({
+        success: true,
+        message: 'Password has been reset successfully. You can now log in with your new password.'
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: (error as Error).message
+      });
+    }
+  });
+
+  static verifyResetToken = asyncHandler(async (
+    req: Request<{ token: string }, ApiResponse>,
+    res: Response<ApiResponse>
+  ) => {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token is required'
+      });
+    }
+
+    try {
+      const isValid = await AuthService.verifyResetToken(token);
+      
+      if (isValid) {
+        res.status(200).json({
+          success: true,
+          message: 'Reset token is valid'
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: 'Reset token is invalid or has expired'
+        });
+      }
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: 'Invalid reset token'
+      });
+    }
   });
 }
