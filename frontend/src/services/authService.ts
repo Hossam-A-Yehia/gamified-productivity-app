@@ -95,13 +95,13 @@ class AuthService {
     cookieManager.set(COOKIE_NAMES.ACCESS_TOKEN, accessToken, {
       expires: 1 / 96, 
       secure: true,
-      sameSite: "lax",
+      sameSite: "LAX",
     });
 
     cookieManager.set(COOKIE_NAMES.REFRESH_TOKEN, refreshToken, {
       expires: 7,
       secure: true,
-      sameSite: "lax",
+      sameSite: "LAX",
     });
   }
 

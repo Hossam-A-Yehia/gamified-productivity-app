@@ -188,16 +188,6 @@ export class AuthController {
     });
   });
 
-  static verifyEmail = asyncHandler(async (
-    req: Request<{}, ApiResponse, { token: string }>,
-    res: Response<ApiResponse>
-  ) => {
-    res.status(200).json({
-      success: true,
-      message: SUCCESS_MESSAGES.EMAIL_VERIFICATION_PLACEHOLDER
-    });
-  });
-
   static forgotPassword = asyncHandler(async (
     req: Request<{}, ApiResponse, { email: string }>,
     res: Response<ApiResponse>

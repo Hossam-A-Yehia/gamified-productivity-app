@@ -21,8 +21,6 @@ router.post('/logout', authenticate, AuthController.logout);
 
 router.get('/profile', authenticate, AuthController.getProfile);
 
-router.post('/verify-email', AuthController.verifyEmail);
-
 router.post('/forgot-password', validateForgotPassword, AuthController.forgotPassword);
 
 router.post('/reset-password', validateResetPassword, AuthController.resetPassword);

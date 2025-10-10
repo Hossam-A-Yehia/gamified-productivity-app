@@ -62,7 +62,6 @@ export const SUCCESS_MESSAGES = {
   PASSWORD_RESET_SUCCESS: 'Password has been reset successfully. You can now log in with your new password.',
   RESET_TOKEN_VALID: 'Reset token is valid',
   GOOGLE_AUTH_SUCCESS: 'Google authentication successful',
-  EMAIL_VERIFICATION_PLACEHOLDER: 'Email verification endpoint - to be implemented',
   PROCESSING_ERROR: 'An error occurred while processing your request'
 } as const;
 
