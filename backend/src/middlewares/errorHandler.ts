@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../types/express';
+import { ERROR_NAMES, ERROR_MESSAGES, ENVIRONMENT } from '../constants';
 
 export interface AppError extends Error {
   statusCode?: number;
@@ -14,28 +15,28 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
+  let message = err.message || ERROR_MESSAGES.INTERNAL_SERVER_ERROR;
 
   // Handle specific error types
-  if (err.name === 'ValidationError') {
+  if (err.name === ERROR_NAMES.VALIDATION_ERROR) {
     statusCode = 400;
-    message = 'Validation Error';
-  } else if (err.name === 'CastError') {
+    message = ERROR_MESSAGES.VALIDATION_ERROR;
+  } else if (err.name === ERROR_NAMES.CAST_ERROR) {
     statusCode = 400;
-    message = 'Invalid ID format';
-  } else if (err.name === 'JsonWebTokenError') {
+    message = ERROR_MESSAGES.INVALID_ID_FORMAT;
+  } else if (err.name === ERROR_NAMES.JWT_ERROR) {
     statusCode = 401;
-    message = 'Invalid token';
-  } else if (err.name === 'TokenExpiredError') {
+    message = ERROR_MESSAGES.INVALID_TOKEN;
+  } else if (err.name === ERROR_NAMES.TOKEN_EXPIRED_ERROR) {
     statusCode = 401;
-    message = 'Token expired';
-  } else if (err.name === 'MongoServerError' && (err as any).code === 11000) {
+    message = ERROR_MESSAGES.TOKEN_EXPIRED;
+  } else if (err.name === ERROR_NAMES.MONGO_SERVER_ERROR && (err as any).code === 11000) {
     statusCode = 400;
-    message = 'Duplicate field value';
+    message = ERROR_MESSAGES.DUPLICATE_FIELD;
   }
 
   // Log error for debugging (in production, use proper logging service)
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT) {
     console.error('Error:', {
       message: err.message,
       stack: err.stack,

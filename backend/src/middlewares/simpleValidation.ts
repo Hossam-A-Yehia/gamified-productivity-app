@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../types/express';
+import { AUTH, ERROR_MESSAGES, DEFAULTS } from '../constants';
 
 export const validateRegister = (req: Request, res: Response<ApiResponse>, next: NextFunction) => {
   const { name, email, password, confirmPassword } = req.body;
@@ -13,10 +14,10 @@ export const validateRegister = (req: Request, res: Response<ApiResponse>, next:
     });
   }
   
-  if (typeof name !== 'string' || name.trim().length < 2) {
+  if (typeof name !== AUTH.STRING_TYPE || name.trim().length < DEFAULTS.MIN_NAME_LENGTH) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid name',
+      message: ERROR_MESSAGES.INVALID_NAME,
       error: 'Name must be at least 2 characters long'
     });
   }
@@ -141,10 +142,10 @@ export const validateResetPassword = (req: Request, res: Response<ApiResponse>, 
     });
   }
   
-  if (typeof token !== 'string' || token.length !== 64 || !/^[a-f0-9]+$/i.test(token)) {
+  if (typeof token !== AUTH.STRING_TYPE || token.length !== AUTH.TOKEN_LENGTH || !AUTH.HEX_REGEX.test(token)) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid reset token format',
+      message: ERROR_MESSAGES.INVALID_RESET_TOKEN_FORMAT,
       error: 'Reset token must be a valid hex string'
     });
   }

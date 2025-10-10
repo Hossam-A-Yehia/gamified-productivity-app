@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { TASK_STATUS } from '../constants';
 
 export interface ITask extends Document {
   userId: mongoose.Types.ObjectId;
@@ -129,14 +130,14 @@ TaskSchema.index({ deadline: 1 });
 
 // Virtual for checking if task is overdue
 TaskSchema.virtual('isOverdue').get(function() {
-  if (!this.deadline || this.status === 'completed') return false;
+  if (!this.deadline || this.status === TASK_STATUS.COMPLETED) return false;
   return new Date() > this.deadline;
 });
 
 // Virtual for calculating completion percentage (for recurring tasks)
 TaskSchema.virtual('completionRate').get(function() {
   // This can be extended for recurring task tracking
-  return this.status === 'completed' ? 100 : 0;
+  return this.status === TASK_STATUS.COMPLETED ? 100 : 0;
 });
 
 // Pre-save middleware to calculate XP and coins based on difficulty and category

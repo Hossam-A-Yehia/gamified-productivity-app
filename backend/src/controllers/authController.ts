@@ -3,6 +3,7 @@ import { AuthService } from '../services/authService';
 import { RegisterRequest, LoginRequest, RefreshTokenRequest } from '../types/auth';
 import { ApiResponse, AuthenticatedRequest } from '../types/express';
 import { asyncHandler } from '../middlewares/errorHandler';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES, COOKIE_CONFIG, ENVIRONMENT } from '../constants';
 
 export class AuthController {
   static register = asyncHandler(async (
@@ -21,22 +22,22 @@ export class AuthController {
 
       // Set HTTP-only cookies for tokens
       res.cookie('accessToken', tokens.accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        httpOnly: COOKIE_CONFIG.HTTP_ONLY,
+        secure: process.env.NODE_ENV === ENVIRONMENT.PRODUCTION,
+        sameSite: COOKIE_CONFIG.SAME_SITE,
+        maxAge: COOKIE_CONFIG.ACCESS_TOKEN_MAX_AGE
       });
 
       res.cookie('refreshToken', tokens.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        httpOnly: COOKIE_CONFIG.HTTP_ONLY,
+        secure: process.env.NODE_ENV === ENVIRONMENT.PRODUCTION,
+        sameSite: COOKIE_CONFIG.SAME_SITE,
+        maxAge: COOKIE_CONFIG.REFRESH_TOKEN_MAX_AGE
       });
 
       res.status(201).json({
         success: true,
-        message: 'User registered successfully',
+        message: SUCCESS_MESSAGES.USER_REGISTERED,
         data: {
           user: {
             id: user._id,
@@ -76,22 +77,22 @@ export class AuthController {
 
       // Set HTTP-only cookies for tokens
       res.cookie('accessToken', tokens.accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 15 * 60 * 1000 // 15 minutes
+        httpOnly: COOKIE_CONFIG.HTTP_ONLY,
+        secure: process.env.NODE_ENV === ENVIRONMENT.PRODUCTION,
+        sameSite: COOKIE_CONFIG.SAME_SITE,
+        maxAge: COOKIE_CONFIG.ACCESS_TOKEN_MAX_AGE
       });
 
       res.cookie('refreshToken', tokens.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        httpOnly: COOKIE_CONFIG.HTTP_ONLY,
+        secure: process.env.NODE_ENV === ENVIRONMENT.PRODUCTION,
+        sameSite: COOKIE_CONFIG.SAME_SITE,
+        maxAge: COOKIE_CONFIG.REFRESH_TOKEN_MAX_AGE
       });
 
       res.status(200).json({
         success: true,
-        message: 'Login successful',
+        message: SUCCESS_MESSAGES.LOGIN_SUCCESSFUL,
         data: {
           user: {
             id: user._id,
@@ -128,7 +129,7 @@ export class AuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Token refreshed successfully',
+        message: SUCCESS_MESSAGES.TOKEN_REFRESHED,
         data: { tokens }
       });
     } catch (error) {
@@ -146,7 +147,7 @@ export class AuthController {
     
     res.status(200).json({
       success: true,
-      message: 'Logout successful'
+      message: SUCCESS_MESSAGES.LOGOUT_SUCCESSFUL
     });
   });
 
@@ -159,13 +160,13 @@ export class AuthController {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'User not authenticated'
+        message: ERROR_MESSAGES.USER_NOT_AUTHENTICATED
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Profile retrieved successfully',
+      message: SUCCESS_MESSAGES.PROFILE_RETRIEVED,
       data: {
         user: {
           id: user._id,
@@ -193,7 +194,7 @@ export class AuthController {
   ) => {
     res.status(200).json({
       success: true,
-      message: 'Email verification endpoint - to be implemented'
+      message: SUCCESS_MESSAGES.EMAIL_VERIFICATION_PLACEHOLDER
     });
   });
 
@@ -206,7 +207,7 @@ export class AuthController {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: 'Email is required'
+        message: ERROR_MESSAGES.EMAIL_REQUIRED
       });
     }
 
@@ -215,14 +216,14 @@ export class AuthController {
       
       res.status(200).json({
         success: true,
-        message: 'If an account with that email exists, a password reset link has been sent'
+        message: SUCCESS_MESSAGES.EMAIL_VERIFICATION_SENT
       });
     } catch (error) {
       console.error('Forgot password error:', error);
       res.status(500).json({
         success: false,
-        message: 'An error occurred while processing your request',
-        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+        message: SUCCESS_MESSAGES.PROCESSING_ERROR,
+        error: process.env.NODE_ENV === ENVIRONMENT.DEVELOPMENT ? (error as Error).message : undefined
       });
     }
   });
@@ -243,7 +244,7 @@ export class AuthController {
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Passwords do not match'
+        message: ERROR_MESSAGES.PASSWORDS_DO_NOT_MATCH
       });
     }
 
@@ -252,7 +253,7 @@ export class AuthController {
       
       res.status(200).json({
         success: true,
-        message: 'Password has been reset successfully. You can now log in with your new password.'
+        message: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESS
       });
     } catch (error) {
       res.status(400).json({
@@ -271,7 +272,7 @@ export class AuthController {
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Reset token is required'
+        message: ERROR_MESSAGES.RESET_TOKEN_REQUIRED
       });
     }
 
@@ -281,18 +282,18 @@ export class AuthController {
       if (isValid) {
         res.status(200).json({
           success: true,
-          message: 'Reset token is valid'
+          message: SUCCESS_MESSAGES.RESET_TOKEN_VALID
         });
       } else {
         res.status(400).json({
           success: false,
-          message: 'Reset token is invalid or has expired'
+          message: ERROR_MESSAGES.RESET_TOKEN_INVALID
         });
       }
     } catch (error) {
       res.status(400).json({
         success: false,
-        message: 'Invalid reset token'
+        message: ERROR_MESSAGES.INVALID_RESET_TOKEN
       });
     }
   });
@@ -306,7 +307,7 @@ export class AuthController {
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Google token is required'
+        message: ERROR_MESSAGES.GOOGLE_TOKEN_REQUIRED
       });
     }
 
@@ -315,7 +316,7 @@ export class AuthController {
 
       res.status(200).json({
         success: true,
-        message: 'Google authentication successful',
+        message: SUCCESS_MESSAGES.GOOGLE_AUTH_SUCCESS,
         data: {
           user: {
             id: user._id,

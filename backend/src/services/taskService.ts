@@ -1,6 +1,7 @@
 import { Task, ITask } from '../models/Task';
 import User from '../models/User';
 import mongoose from 'mongoose';
+import { TASK_STATUS, SORT_ORDER, DEFAULTS, MONGO_OPERATORS, REGEX_OPTIONS, ERROR_MESSAGES } from '../constants';
 
 export interface TaskFilters {
   status?: string;
@@ -55,7 +56,7 @@ export class TaskService {
     };
   }> {
     const page = filters.page || 1;
-    const limit = filters.limit || 20;
+    const limit = filters.limit || DEFAULTS.PAGE_LIMIT;
     const skip = (page - 1) * limit;
 
     // Build query manually since we need more control
@@ -91,17 +92,17 @@ export class TaskService {
     }
     
     if (filters.search) {
-      queryConditions.$or = [
-        { title: { $regex: filters.search, $options: 'i' } },
-        { description: { $regex: filters.search, $options: 'i' } }
+      queryConditions[MONGO_OPERATORS.OR] = [
+        { title: { [MONGO_OPERATORS.REGEX]: filters.search, [MONGO_OPERATORS.OPTIONS]: REGEX_OPTIONS.CASE_INSENSITIVE } },
+        { description: { [MONGO_OPERATORS.REGEX]: filters.search, [MONGO_OPERATORS.OPTIONS]: REGEX_OPTIONS.CASE_INSENSITIVE } }
       ];
     }
 
     let query = Task.find(queryConditions);
 
     // Apply sorting
-    const sortBy = filters.sortBy || 'createdAt';
-    const sortOrder = filters.sortOrder === 'asc' ? 1 : -1;
+    const sortBy = filters.sortBy || DEFAULTS.SORT_BY;
+    const sortOrder = filters.sortOrder === SORT_ORDER.ASC ? 1 : -1;
     query = query.sort({ [sortBy]: sortOrder });
 
     // Execute query with pagination
@@ -172,17 +173,17 @@ export class TaskService {
       {
         _id: taskId,
         userId: new mongoose.Types.ObjectId(userId),
-        status: { $ne: 'completed' },
+        status: { [MONGO_OPERATORS.NOT_EQUAL]: TASK_STATUS.COMPLETED },
       },
       {
-        status: 'completed',
+        status: TASK_STATUS.COMPLETED,
         completedAt: new Date(),
       },
       { new: true }
     );
 
     if (!task) {
-      throw new Error('Task not found or already completed');
+      throw new Error(ERROR_MESSAGES.TASK_NOT_FOUND_OR_COMPLETED);
     }
 
     let xpAwarded = task.xpValue;
@@ -190,7 +191,7 @@ export class TaskService {
 
     const user = await User.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
     }
 
     const streakBonus = Math.min(user.streak * 5, 50);
@@ -230,7 +231,7 @@ export class TaskService {
     taskId: string,
     status: 'pending' | 'in_progress' | 'completed'
   ): Promise<ITask | null> {
-    if (status === 'completed') {
+    if (status === TASK_STATUS.COMPLETED) {
       const result = await this.completeTask(userId, taskId);
       return result.task;
     }
@@ -280,17 +281,17 @@ export class TaskService {
     const now = new Date();
 
     tasks.forEach((task) => {
-      if (task.status === 'completed') {
+      if (task.status === TASK_STATUS.COMPLETED) {
         stats.completed++;
         stats.totalXpEarned += task.xpValue;
         stats.totalCoinsEarned += task.coinsValue;
-      } else if (task.status === 'pending') {
+      } else if (task.status === TASK_STATUS.PENDING) {
         stats.pending++;
-      } else if (task.status === 'in_progress') {
+      } else if (task.status === TASK_STATUS.IN_PROGRESS) {
         stats.inProgress++;
       }
 
-      if (task.deadline && task.status !== 'completed' && now > task.deadline) {
+      if (task.deadline && task.status !== TASK_STATUS.COMPLETED && now > task.deadline) {
         stats.overdue++;
       }
       stats.categoryBreakdown[task.category] = (stats.categoryBreakdown[task.category] || 0) + 1;
@@ -308,8 +309,8 @@ export class TaskService {
     const now = new Date();
     return await Task.find({
       userId: new mongoose.Types.ObjectId(userId),
-      deadline: { $lt: now },
-      status: { $ne: 'completed' },
+      deadline: { [MONGO_OPERATORS.LESS_THAN]: now },
+      status: { [MONGO_OPERATORS.NOT_EQUAL]: TASK_STATUS.COMPLETED },
     }).sort({ deadline: 1 });
   }
 

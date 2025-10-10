@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuthService } from '../services/authService';
 import { AuthenticatedRequest, ApiResponse } from '../types/express';
 import { asyncHandler } from './errorHandler';
+import { AUTH, ERROR_MESSAGES } from '../constants';
 
 // JWT Authentication middleware
 export const authenticate = asyncHandler(async (
@@ -11,14 +12,14 @@ export const authenticate = asyncHandler(async (
 ) => {
   const authHeader = req.headers.authorization;
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader || !authHeader.startsWith(AUTH.BEARER_PREFIX)) {
     return res.status(401).json({
       success: false,
-      message: 'Access token required'
+      message: ERROR_MESSAGES.ACCESS_TOKEN_REQUIRED
     });
   }
 
-  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  const token = authHeader.substring(AUTH.BEARER_PREFIX_LENGTH); // Remove 'Bearer ' prefix
 
   try {
     const payload = AuthService.verifyAccessToken(token);
@@ -27,7 +28,7 @@ export const authenticate = asyncHandler(async (
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'User not found'
+        message: ERROR_MESSAGES.USER_NOT_FOUND
       });
     }
 
@@ -36,7 +37,7 @@ export const authenticate = asyncHandler(async (
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid or expired token'
+      message: ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN
     });
   }
 });
@@ -49,8 +50,8 @@ export const optionalAuth = asyncHandler(async (
 ) => {
   const authHeader = req.headers.authorization;
   
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
+  if (authHeader && authHeader.startsWith(AUTH.BEARER_PREFIX)) {
+    const token = authHeader.substring(AUTH.BEARER_PREFIX_LENGTH);
     
     try {
       const payload = AuthService.verifyAccessToken(token);
