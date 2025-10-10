@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { connectMongoDB } from "./config/database";
 import { connectRedis } from "./config/redis";
 import authRoutes from "./routes/auth";
+import taskRoutes from "./routes/tasks";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
 
 app.get("/api/ping", (_, res) => {
   res.json({ 
