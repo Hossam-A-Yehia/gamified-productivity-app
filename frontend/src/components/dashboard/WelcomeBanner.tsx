@@ -10,26 +10,28 @@ interface WelcomeBannerProps {
 
 const getTimeBasedGreeting = () => {
   const hour = new Date().getHours();
-  if (hour < 12) return { 
-    greeting: 'Good Morning', 
-    emoji: '🌅', 
-    gradient: 'from-amber-400 via-orange-500 to-rose-600',
-    accentColor: 'from-orange-400 to-amber-500',
-    particles: '🌟'
+  const baseTheme = {
+    gradient: 'from-slate-900 via-gray-900 to-black',
+    accentColor: 'from-sky-500 to-cyan-400',
   };
-  if (hour < 18) return { 
-    greeting: 'Good Afternoon', 
-    emoji: '☀️', 
-    gradient: 'from-sky-400 via-blue-500 to-indigo-600',
-    accentColor: 'from-blue-400 to-cyan-500',
-    particles: '💫'
+
+  if (hour < 12) return {
+    ...baseTheme,
+    greeting: 'Good Morning',
+    emoji: '🌅',
+    particles: '🌟',
   };
-  return { 
-    greeting: 'Good Evening', 
-    emoji: '🌙', 
-    gradient: 'from-violet-500 via-purple-600 to-indigo-700',
-    accentColor: 'from-purple-400 to-violet-500',
-    particles: '✨'
+  if (hour < 18) return {
+    ...baseTheme,
+    greeting: 'Good Afternoon',
+    emoji: '☀️',
+    particles: '💫',
+  };
+  return {
+    ...baseTheme,
+    greeting: 'Good Evening',
+    emoji: '🌙',
+    particles: '✨',
   };
 };
 
@@ -68,7 +70,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
       initial={{ opacity: 0, y: 30, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${timeGreeting.gradient} p-8 md:p-12 text-white shadow-2xl border border-white/10`}
+      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${timeGreeting.gradient} p-6 md:p-10 text-white shadow-2xl border border-white/10`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-white/10"></div>
       
@@ -118,7 +120,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
           transition={{ delay: 0.3, duration: 0.8 }}
           className="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
         >
-          <div className="flex items-center space-x-6 mb-6 md:mb-0">
+          <div className="flex items-center space-x-4 mb-6 md:mb-0">
             <motion.div
               className="relative"
               whileHover={{ scale: 1.1 }}
@@ -132,8 +134,8 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
                 repeatDelay: 2 
               }}
             >
-              <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${timeGreeting.accentColor} flex items-center justify-center shadow-2xl border border-white/20`}>
-                <span className="text-4xl">{timeGreeting.emoji}</span>
+              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${timeGreeting.accentColor} flex items-center justify-center shadow-2xl border border-white/20`}>
+                <span className="text-3xl">{timeGreeting.emoji}</span>
               </div>
               <motion.div
                 className="absolute -inset-2 rounded-2xl border-2 border-white/30"
@@ -150,7 +152,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
             
             <div>
               <motion.h2 
-                className="text-4xl md:text-6xl font-black mb-2 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent"
+                className="text-3xl md:text-4xl font-black mb-1 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
@@ -158,7 +160,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
                 {timeGreeting.greeting}
               </motion.h2>
               <motion.h3 
-                className="text-3xl md:text-4xl font-bold mb-3"
+                className="text-2xl md:text-3xl font-bold mb-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
@@ -166,7 +168,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
                 {userName}! 👋
               </motion.h3>
               <motion.p 
-                className="text-lg md:text-xl font-medium opacity-90"
+                className="text-base md:text-lg font-medium opacity-80"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
@@ -182,13 +184,13 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
             transition={{ delay: 1.1, type: "spring" }}
             className="flex flex-col space-y-4"
           >
-            <div className="flex space-x-6">
+            <div className="flex space-x-4">
               <motion.div 
                 className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
                 whileHover={{ scale: 1.05, y: -2 }}
               >
                 <motion.div 
-                  className="text-3xl font-black mb-1"
+                  className="text-2xl font-black mb-1"
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
                 >
@@ -202,7 +204,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
                 whileHover={{ scale: 1.05, y: -2 }}
               >
                 <motion.div 
-                  className="text-3xl font-black mb-1 flex items-center justify-center"
+                  className="text-2xl font-black mb-1 flex items-center justify-center"
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5 }}
                 >
@@ -228,7 +230,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
             }}
             whileTap={{ scale: 0.95 }}
             onClick={onCreateTask}
-            className="group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-2xl border border-white/30 transition-all duration-300 overflow-hidden"
+            className="group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-3 rounded-xl font-bold text-base shadow-lg border border-white/30 transition-all duration-300 overflow-hidden"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5"
