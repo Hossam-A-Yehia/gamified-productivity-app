@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '../utils/constants';
+import { ROUTES, TASK_STATUS, DASHBOARD_TABS, SORT_ORDER, LOADING_STATES, type DashboardTab } from '../utils/constants';
 import { useTasks, useTaskStats, useOverdueTasks, useCreateTask, useCompleteTask, useUpdateTaskStatus, useDeleteTask, useUpdateTask } from '../hooks/useTasks';
 import { TaskForm } from '../components/tasks/TaskForm';
 import { RewardNotification } from '../components/gamification/RewardNotification';
@@ -15,7 +15,7 @@ const Dashboard: React.FC = () => {
   
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'pending' | 'in_progress' | 'completed'>('overview');
+  const [activeTab, setActiveTab] = useState<DashboardTab>(DASHBOARD_TABS.OVERVIEW);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(3); 
   const [rewardNotification, setRewardNotification] = useState<{
@@ -28,11 +28,11 @@ const Dashboard: React.FC = () => {
     limit: itemsPerPage,
     page: currentPage,
     sortBy: 'createdAt', 
-    sortOrder: 'desc' 
+    sortOrder: SORT_ORDER.DESC 
   });
-  const { data: pendingTasks } = useTasks({ status: 'pending', limit: itemsPerPage, page: activeTab === 'pending' ? currentPage : 1 });
-  const { data: inProgressTasks } = useTasks({ status: 'in_progress', limit: itemsPerPage, page: activeTab === 'in_progress' ? currentPage : 1 });
-  const { data: completedTasks } = useTasks({ status: 'completed', limit: itemsPerPage, page: activeTab === 'completed' ? currentPage : 1 });
+  const { data: pendingTasks } = useTasks({ status: TASK_STATUS.PENDING, limit: itemsPerPage, page: activeTab === DASHBOARD_TABS.PENDING ? currentPage : 1 });
+  const { data: inProgressTasks } = useTasks({ status: TASK_STATUS.IN_PROGRESS, limit: itemsPerPage, page: activeTab === DASHBOARD_TABS.IN_PROGRESS ? currentPage : 1 });
+  const { data: completedTasks } = useTasks({ status: TASK_STATUS.COMPLETED, limit: itemsPerPage, page: activeTab === DASHBOARD_TABS.COMPLETED ? currentPage : 1 });
   const { data: taskStats } = useTaskStats();
   const { data: overdueTasks } = useOverdueTasks();
 
@@ -138,11 +138,11 @@ const Dashboard: React.FC = () => {
 
   const getCurrentTasksData = () => {
     switch (activeTab) {
-      case 'pending':
+      case DASHBOARD_TABS.PENDING:
         return pendingTasks;
-      case 'in_progress':
+      case DASHBOARD_TABS.IN_PROGRESS:
         return inProgressTasks;
-      case 'completed':
+      case DASHBOARD_TABS.COMPLETED:
         return completedTasks;
       default:
         return tasksData;
@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
     setCurrentPage(page);
   };
 
-  const handleTabChange = (tab: 'overview' | 'pending' | 'in_progress' | 'completed') => {
+  const handleTabChange = (tab: DashboardTab) => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
@@ -223,7 +223,7 @@ const Dashboard: React.FC = () => {
                 disabled={isLoggingOut}
                 className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50"
               >
-                {isLoggingOut ? 'Signing out...' : 'Sign Out'}
+                {isLoggingOut ? LOADING_STATES.SIGNING_OUT : LOADING_STATES.SIGN_OUT}
               </motion.button>
             </div>
           </div>

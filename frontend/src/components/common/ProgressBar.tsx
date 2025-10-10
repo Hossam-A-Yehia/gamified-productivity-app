@@ -1,22 +1,22 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import classNames from 'classnames';
+import { COMPONENT_SIZES, PROGRESS_BAR_COLORS, type ComponentSize, type ProgressBarColor } from '../../utils/constants';
 
 interface ProgressBarProps {
-  progress: number; // 0-100
-  className?: string;
-  color?: 'primary' | 'success' | 'warning' | 'error';
-  size?: 'sm' | 'md' | 'lg';
-  showLabel?: boolean;
+  progress: number;
+  size?: ComponentSize;
+  color?: ProgressBarColor;
+  showPercentage?: boolean;
   animated?: boolean;
+  className?: string;
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({
   progress,
   className,
-  color = 'primary',
-  size = 'md',
-  showLabel = false,
+  size = COMPONENT_SIZES.MEDIUM,
+  color = PROGRESS_BAR_COLORS.PRIMARY,
+  showPercentage = false,
   animated = true,
 }) => {
   const clampedProgress = Math.max(0, Math.min(100, progress));
@@ -24,19 +24,19 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const containerClasses = classNames(
     'relative overflow-hidden rounded-full',
     {
-      'h-1': size === 'sm',
-      'h-2': size === 'md',
-      'h-3': size === 'lg',
+      'h-1': size === COMPONENT_SIZES.SMALL,
+      'h-2': size === COMPONENT_SIZES.MEDIUM,
+      'h-3': size === COMPONENT_SIZES.LARGE,
       'bg-gray-200 dark:bg-gray-700': true,
     },
     className
   );
 
   const barClasses = classNames('h-full rounded-full', {
-    'bg-blue-500': color === 'primary',
-    'bg-green-500': color === 'success',
-    'bg-yellow-500': color === 'warning',
-    'bg-red-500': color === 'error',
+    'bg-blue-500': color === PROGRESS_BAR_COLORS.PRIMARY,
+    'bg-green-500': color === PROGRESS_BAR_COLORS.SUCCESS,
+    'bg-yellow-500': color === PROGRESS_BAR_COLORS.WARNING,
+    'bg-red-500': color === PROGRESS_BAR_COLORS.ERROR,
   });
 
   return (
@@ -52,7 +52,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           }}
         />
       </div>
-      {showLabel && (
+      {showPercentage && (
         <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           {Math.round(clampedProgress)}%
         </div>

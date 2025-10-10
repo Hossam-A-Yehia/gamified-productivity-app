@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { Task } from '../../types/task';
 import { TASK_CATEGORIES, TASK_DIFFICULTIES, TASK_PRIORITIES, TASK_STATUSES } from '../../types/task';
+import { TASK_STATUS } from '../../utils/constants';
 
 interface TaskCardProps {
   task: Task;
@@ -25,13 +26,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const priority = TASK_PRIORITIES.find(p => p.value === task.priority);
   const status = TASK_STATUSES.find(s => s.value === task.status);
 
-  const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'completed';
+  const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== TASK_STATUS.COMPLETED;
   const daysUntilDeadline = task.deadline 
     ? Math.ceil((new Date(task.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
   const handleStatusChange = (newStatus: Task['status']) => {
-    if (newStatus === 'completed' && onComplete) {
+    if (newStatus === TASK_STATUS.COMPLETED && onComplete) {
       onComplete(task._id);
     } else if (onStatusChange) {
       onStatusChange(task._id, newStatus);
@@ -130,7 +131,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       {showActions && (
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            {task.status !== 'completed' && (
+            {task.status !== TASK_STATUS.COMPLETED && (
               <select
                 value={task.status}
                 onChange={(e) => handleStatusChange(e.target.value as Task['status'])}
@@ -141,7 +142,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 <option value="completed">Complete</option>
               </select>
             )}
-            {task.status === 'completed' && (
+            {task.status === TASK_STATUS.COMPLETED && (
               <span className="text-green-600 dark:text-green-400 text-sm font-medium flex items-center gap-1">
                 ✅ Completed
               </span>
@@ -160,7 +161,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 ✏️
               </motion.button>
             )}
-            {onDelete && task.status !== 'completed' && (
+            {onDelete && task.status !== TASK_STATUS.COMPLETED && (
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

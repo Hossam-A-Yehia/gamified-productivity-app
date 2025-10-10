@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { LAYOUT_SIDES, type LayoutSide } from '../../../utils/constants';
 
 interface Feature {
   icon: string;
@@ -7,21 +8,20 @@ interface Feature {
 }
 
 interface FeatureCardsProps {
-  side?: 'left' | 'right' | 'mobile';
+  side: LayoutSide;
 }
 
 const featuresData: Feature[] = [
   { icon: '🏆', label: 'Earn XP' },
   { icon: '🎯', label: 'Complete Tasks' },
-  { icon: '🔥', label: 'Build Streaks' },
   { icon: '⚡', label: 'Level Up' },
 ];
 
 // Split features for left and right sides
-const getFeaturesForSide = (side: string) => {
-  if (side === 'left') {
+const getFeaturesForSide = (side: LayoutSide) => {
+  if (side === LAYOUT_SIDES.LEFT) {
     return [featuresData[0], featuresData[1]];
-  } else if (side === 'right') {
+  } else if (side === LAYOUT_SIDES.RIGHT) {
     return [featuresData[2], featuresData[3]];
   }
   return featuresData;
@@ -31,14 +31,14 @@ const FeatureCards: React.FC<FeatureCardsProps> = ({ side = 'mobile' }) => {
   const currentFeatures = getFeaturesForSide(side);
   
   const getLayoutClasses = () => {
-    if (side === 'mobile') {
+    if (side === LAYOUT_SIDES.MOBILE) {
       return 'mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center';
     }
     return 'flex flex-col space-y-4';
   };
 
   const getCardClasses = () => {
-    if (side === 'mobile') {
+    if (side === LAYOUT_SIDES.MOBILE) {
       return 'bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700';
     }
     return 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-200/50 dark:border-gray-700/50 text-center';
@@ -72,7 +72,7 @@ const FeatureCards: React.FC<FeatureCardsProps> = ({ side = 'mobile' }) => {
           className={getCardClasses()}
         >
           <motion.div 
-            className={`${side === 'mobile' ? 'text-2xl' : 'text-3xl'} mb-2`}
+            className={`${side === LAYOUT_SIDES.MOBILE ? 'text-2xl' : 'text-3xl'} mb-2`}
             animate={{
               rotate: [0, 3, -3, 0]
             }}
@@ -85,7 +85,7 @@ const FeatureCards: React.FC<FeatureCardsProps> = ({ side = 'mobile' }) => {
           >
             {feature.icon}
           </motion.div>
-          <div className={`${side === 'mobile' ? 'text-sm' : 'text-base font-medium'} text-gray-600 dark:text-gray-400`}>
+          <div className={`${side === LAYOUT_SIDES.MOBILE ? 'text-sm' : 'text-base font-medium'} text-gray-600 dark:text-gray-400`}>
             {feature.label}
           </div>
         </motion.div>

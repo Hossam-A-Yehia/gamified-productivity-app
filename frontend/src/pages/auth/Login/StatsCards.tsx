@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { LAYOUT_SIDES, type LayoutSide } from '../../../utils/constants';
 
 interface StatCard {
   icon: string;
@@ -8,7 +9,7 @@ interface StatCard {
 }
 
 interface StatsCardsProps {
-  side?: 'left' | 'right' | 'mobile';
+  side: LayoutSide;
 }
 
 const statsData: StatCard[] = [
@@ -18,10 +19,10 @@ const statsData: StatCard[] = [
   { icon: '🔥', label: 'Daily Streaks', value: '365+' },
 ];
 
-const getStatsForSide = (side: string) => {
-  if (side === 'left') {
+const getStatsForSide = (side: LayoutSide) => {
+  if (side === LAYOUT_SIDES.LEFT) {
     return [statsData[0], statsData[1]];
-  } else if (side === 'right') {
+  } else if (side === LAYOUT_SIDES.RIGHT) {
     return [statsData[2], statsData[3]]; 
   }
   return statsData;
@@ -31,14 +32,14 @@ const StatsCards: React.FC<StatsCardsProps> = ({ side = 'mobile' }) => {
   const currentStats = getStatsForSide(side);
   
   const getLayoutClasses = () => {
-    if (side === 'mobile') {
+    if (side === LAYOUT_SIDES.MOBILE) {
       return 'mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center';
     }
     return 'flex flex-col space-y-4';
   };
 
   const getCardClasses = () => {
-    if (side === 'mobile') {
+    if (side === LAYOUT_SIDES.MOBILE) {
       return 'bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm border border-gray-100 dark:border-gray-700';
     }
     return 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-gray-200/50 dark:border-gray-700/50 text-center';
@@ -72,7 +73,7 @@ const StatsCards: React.FC<StatsCardsProps> = ({ side = 'mobile' }) => {
           className={getCardClasses()}
         >
           <motion.div 
-            className={`${side === 'mobile' ? 'text-xl' : 'text-3xl'} mb-2`}
+            className={`${side === LAYOUT_SIDES.MOBILE ? 'text-xl' : 'text-3xl'} mb-2`}
             animate={{
               rotate: [0, 3, -3, 0]
             }}
@@ -85,10 +86,10 @@ const StatsCards: React.FC<StatsCardsProps> = ({ side = 'mobile' }) => {
           >
             {stat.icon}
           </motion.div>
-          <div className={`${side === 'mobile' ? 'text-lg' : 'text-2xl'} font-bold text-gray-900 dark:text-white mb-1`}>
+          <div className={`${side === LAYOUT_SIDES.MOBILE ? 'text-lg' : 'text-2xl'} font-bold text-gray-900 dark:text-white mb-1`}>
             {stat.value}
           </div>
-          <div className={`${side === 'mobile' ? 'text-xs' : 'text-sm'} text-gray-600 dark:text-gray-400`}>
+          <div className={`${side === LAYOUT_SIDES.MOBILE ? 'text-xs' : 'text-sm'} text-gray-600 dark:text-gray-400`}>
             {stat.label}
           </div>
         </motion.div>

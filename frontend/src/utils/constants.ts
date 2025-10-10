@@ -69,3 +69,112 @@ export const ROUTES = {
   FOCUS: '/focus',
   SETTINGS: '/settings',
 } as const;
+
+export const TASK_STATUS = {
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed'
+} as const;
+
+export const TASK_DIFFICULTY = {
+  EASY: 'easy',
+  MEDIUM: 'medium',
+  HARD: 'hard'
+} as const;
+
+export const TASK_PRIORITY = {
+  LOW: 'low',
+  MEDIUM: 'medium',
+  HIGH: 'high'
+} as const;
+
+export const TASK_CATEGORY = {
+  WORK: 'work',
+  PERSONAL: 'personal',
+  HEALTH: 'health',
+  LEARNING: 'learning',
+  OTHER: 'other'
+} as const;
+
+export const RECURRENCE_TYPE = {
+  NONE: 'none',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+  MONTHLY: 'monthly'
+} as const;
+
+export const DASHBOARD_TABS = {
+  OVERVIEW: 'overview',
+  PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
+  COMPLETED: 'completed'
+} as const;
+
+export const SORT_ORDER = {
+  ASC: 'asc',
+  DESC: 'desc'
+} as const;
+
+export const COMPONENT_SIZES = {
+  SMALL: 'sm',
+  MEDIUM: 'md',
+  LARGE: 'lg'
+} as const;
+
+export const PROGRESS_BAR_COLORS = {
+  PRIMARY: 'primary',
+  SUCCESS: 'success',
+  WARNING: 'warning',
+  ERROR: 'error'
+} as const;
+
+export const LAYOUT_SIDES = {
+  LEFT: 'left',
+  RIGHT: 'right',
+  MOBILE: 'mobile'
+} as const;
+
+export const PROTOCOLS = {
+  HTTPS: 'https:',
+  HTTP: 'http:'
+} as const;
+
+export const COOKIE_SAME_SITE = {
+  LAX: 'lax',
+  STRICT: 'strict',
+  NONE: 'none'
+} as const;
+
+export const LOADING_STATES = {
+  LOADING: 'Loading...',
+  SIGNING_OUT: 'Signing out...',
+  SIGN_OUT: 'Sign Out'
+} as const;
+
+export const VALIDATION_MESSAGES = {
+  PASSWORD_LOWERCASE: 'Password must contain at least one lowercase letter',
+  PASSWORD_UPPERCASE: 'Password must contain at least one uppercase letter',
+  PASSWORD_NUMBER: 'Password must contain at least one number',
+  PASSWORD_SYMBOL: 'Password must contain at least one symbol',
+  PASSWORD_MIN_LENGTH: 'Password must be at least 8 characters long',
+  INTERVAL_MIN: 'Interval must be at least 1',
+  INTERVAL_REQUIRED: 'Interval is required for recurring tasks',
+  END_DATE_REQUIRED: 'End date is required for recurring tasks'
+} as const;
+
+export const EMPTY_MESSAGES = {
+  NO_TASKS: "No tasks yet. Create your first task to get started!",
+  NO_PENDING_TASKS: "No pending tasks",
+  NO_IN_PROGRESS_TASKS: "No in progress tasks", 
+  NO_COMPLETED_TASKS: "No completed tasks"
+} as const;
+
+export type TaskStatus = typeof TASK_STATUS[keyof typeof TASK_STATUS];
+export type TaskDifficulty = typeof TASK_DIFFICULTY[keyof typeof TASK_DIFFICULTY];
+export type TaskPriority = typeof TASK_PRIORITY[keyof typeof TASK_PRIORITY];
+export type TaskCategory = typeof TASK_CATEGORY[keyof typeof TASK_CATEGORY];
+export type DashboardTab = typeof DASHBOARD_TABS[keyof typeof DASHBOARD_TABS];
+export type SortOrder = typeof SORT_ORDER[keyof typeof SORT_ORDER];
+export type ComponentSize = typeof COMPONENT_SIZES[keyof typeof COMPONENT_SIZES];
+export type ProgressBarColor = typeof PROGRESS_BAR_COLORS[keyof typeof PROGRESS_BAR_COLORS];
+export type LayoutSide = typeof LAYOUT_SIDES[keyof typeof LAYOUT_SIDES];

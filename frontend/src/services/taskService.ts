@@ -1,14 +1,6 @@
 import { apiService } from './api';
-import type {
-  Task,
-  CreateTaskRequest,
-  UpdateTaskRequest,
-  TaskFilters,
-  TaskStats,
-  TaskCompletionResponse,
-  BulkUpdateRequest,
-  TasksResponse,
-} from '../types/task';
+import type { Task, CreateTaskRequest, UpdateTaskRequest, TaskFilters, TaskStats, BulkUpdateRequest, TasksResponse, TaskCompletionResponse } from '../types/task';
+import { TASK_STATUS, TASK_DIFFICULTY, SORT_ORDER } from '../utils/constants';
 
 class TaskService {
   async getTasks(filters: TaskFilters = {}): Promise<TasksResponse> {
@@ -68,7 +60,7 @@ class TaskService {
 
   async updateTaskStatus(
     taskId: string, 
-    status: 'pending' | 'in_progress' | 'completed'
+    status: typeof TASK_STATUS[keyof typeof TASK_STATUS]
   ): Promise<Task> {
     const response = await apiService.patch<Task>(
       `/tasks/${taskId}/status`,
@@ -92,7 +84,7 @@ class TaskService {
     return response.data.data!;
   }
 
-  async getTasksByStatus(status: 'pending' | 'in_progress' | 'completed'): Promise<Task[]> {
+  async getTasksByStatus(status: typeof TASK_STATUS[keyof typeof TASK_STATUS]): Promise<Task[]> {
     const result = await this.getTasks({ status, limit: 100 });
     return result.tasks;
   }
@@ -117,7 +109,7 @@ class TaskService {
       endDate: endOfDay,
       limit: 100,
       sortBy: 'deadline',
-      sortOrder: 'asc'
+      sortOrder: SORT_ORDER.ASC
     });
     return result.tasks;
   }
@@ -129,10 +121,10 @@ class TaskService {
     const result = await this.getTasks({
       startDate: today.toISOString(),
       endDate: nextWeek.toISOString(),
-      status: 'pending',
+      status: TASK_STATUS.PENDING,
       limit: 100,
       sortBy: 'deadline',
-      sortOrder: 'asc'
+      sortOrder: SORT_ORDER.ASC
     });
     return result.tasks;
   }
@@ -141,9 +133,9 @@ class TaskService {
     const baseXP = 10;
     
     const difficultyMultipliers = {
-      easy: 1.0,
-      medium: 1.5,
-      hard: 2.0
+      [TASK_DIFFICULTY.EASY]: 1.0,
+      [TASK_DIFFICULTY.MEDIUM]: 1.5,
+      [TASK_DIFFICULTY.HARD]: 2.0
     };
     
     const categoryBonuses = {
@@ -156,7 +148,7 @@ class TaskService {
     
     const streakBonus = Math.min(userStreak * 5, 50);
     
-    const difficulty = task.difficulty || 'medium';
+    const difficulty = task.difficulty || TASK_DIFFICULTY.MEDIUM;
     const category = task.category || 'other';
     
     return Math.floor(

@@ -1,8 +1,9 @@
+import { PROTOCOLS, COOKIE_SAME_SITE } from './constants';
 
 interface CookieOptions {
-  expires?: number; 
+  expires?: number; // days
   secure?: boolean;
-  sameSite?: 'strict' | 'lax' | 'none';
+  sameSite?: keyof typeof COOKIE_SAME_SITE;
   httpOnly?: boolean;
 }
 
@@ -10,8 +11,8 @@ class CookieManager {
   set(name: string, value: string, options: CookieOptions = {}): void {
     const {
       expires = 7, 
-      secure = window.location.protocol === 'https:',
-      sameSite = 'lax'
+      secure = window.location.protocol === PROTOCOLS.HTTPS,
+      sameSite = COOKIE_SAME_SITE.LAX
     } = options;
 
     let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;

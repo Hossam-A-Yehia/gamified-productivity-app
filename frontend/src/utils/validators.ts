@@ -1,5 +1,7 @@
 import { VALIDATION_RULES } from './constants';
 
+import { VALIDATION_MESSAGES } from './constants';
+
 export interface ValidationResult {
   isValid: boolean;
   errors: string[];
@@ -29,23 +31,23 @@ export const validatePassword = (password: string): ValidationResult => {
   }
   
   if (password.length < VALIDATION_RULES.PASSWORD_MIN_LENGTH) {
-    errors.push(`Password must be at least ${VALIDATION_RULES.PASSWORD_MIN_LENGTH} characters long`);
+    errors.push(VALIDATION_MESSAGES.PASSWORD_MIN_LENGTH);
   }
   
   if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
+    errors.push(VALIDATION_MESSAGES.PASSWORD_LOWERCASE);
   }
   
   if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
+    errors.push(VALIDATION_MESSAGES.PASSWORD_UPPERCASE);
   }
   
   if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number');
+    errors.push(VALIDATION_MESSAGES.PASSWORD_NUMBER);
   }
   
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
-    errors.push('Password must contain at least one symbol (!@#$%^&*()_+-=[]{};\':"|,.<>/?~`)');
+    errors.push(VALIDATION_MESSAGES.PASSWORD_SYMBOL);
   }
   
   return {
