@@ -88,6 +88,13 @@ class ApiService {
     return this.api.delete(url);
   }
 
+  async patch<T>(
+    url: string,
+    data?: any
+  ): Promise<AxiosResponse<ApiResponse<T>>> {
+    return this.api.patch(url, data);
+  }
+
   private async refreshToken(refreshToken: string) {
     return this.api.post("/auth/refresh", { refreshToken });
   }

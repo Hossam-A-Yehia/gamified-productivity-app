@@ -168,91 +168,69 @@ export class TaskService {
     levelUp?: boolean;
     newLevel?: number;
   }> {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    const task = await Task.findOneAndUpdate(
+      {
+        _id: taskId,
+        userId: new mongoose.Types.ObjectId(userId),
+        status: { $ne: 'completed' },
+      },
+      {
+        status: 'completed',
+        completedAt: new Date(),
+      },
+      { new: true }
+    );
 
-    try {
-      // Find and update the task
-      const task = await Task.findOneAndUpdate(
-        {
-          _id: taskId,
-          userId: new mongoose.Types.ObjectId(userId),
-          status: { $ne: 'completed' },
-        },
-        {
-          status: 'completed',
-          completedAt: new Date(),
-        },
-        { new: true, session }
-      );
-
-      if (!task) {
-        throw new Error('Task not found or already completed');
-      }
-
-      // Calculate XP and coins with bonuses
-      let xpAwarded = task.xpValue;
-      let coinsAwarded = task.coinsValue;
-
-      // Get user for streak bonus calculation
-      const user = await User.findById(userId).session(session);
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Add streak bonus (up to 50 XP)
-      const streakBonus = Math.min(user.streak * 5, 50);
-      xpAwarded += streakBonus;
-
-      // Early completion bonus
-      if (task.deadline && task.completedAt! < task.deadline) {
-        xpAwarded += 10;
-        coinsAwarded += 2;
-      }
-
-      // Update user XP and coins
-      const oldLevel = user.level;
-      user.xp += xpAwarded;
-      user.coins += coinsAwarded;
-      user.stats.totalTasksCompleted += 1;
-
-      // Calculate new level
-      const newLevel = this.calculateLevel(user.xp);
-      const levelUp = newLevel > oldLevel;
-      
-      if (levelUp) {
-        user.level = newLevel;
-      }
-
-      // Update streak
-      await this.updateUserStreak(user);
-
-      await user.save({ session });
-      await session.commitTransaction();
-
-      return {
-        task,
-        xpAwarded,
-        coinsAwarded,
-        levelUp,
-        newLevel: levelUp ? newLevel : undefined,
-      };
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+    if (!task) {
+      throw new Error('Task not found or already completed');
     }
+
+    let xpAwarded = task.xpValue;
+    let coinsAwarded = task.coinsValue;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const streakBonus = Math.min(user.streak * 5, 50);
+    xpAwarded += streakBonus;
+
+    if (task.deadline && task.completedAt! < task.deadline) {
+      xpAwarded += 10;
+      coinsAwarded += 2;
+    }
+
+    const oldLevel = user.level;
+    user.xp += xpAwarded;
+    user.coins += coinsAwarded;
+    user.stats.totalTasksCompleted += 1;
+
+    const newLevel = this.calculateLevel(user.xp);
+    const levelUp = newLevel > oldLevel;
+    
+    if (levelUp) {
+      user.level = newLevel;
+    }
+    await this.updateUserStreak(user);
+
+    await user.save();
+
+    return {
+      task,
+      xpAwarded,
+      coinsAwarded,
+      levelUp,
+      newLevel: levelUp ? newLevel : undefined,
+    };
   }
 
-  // Update task status
   static async updateTaskStatus(
     userId: string,
     taskId: string,
     status: 'pending' | 'in_progress' | 'completed'
   ): Promise<ITask | null> {
     if (status === 'completed') {
-      // Use the completeTask method for completed status
       const result = await this.completeTask(userId, taskId);
       return result.task;
     }
@@ -267,7 +245,6 @@ export class TaskService {
     );
   }
 
-  // Bulk operations on tasks
   static async bulkUpdateTasks(
     userId: string,
     taskIds: string[],
@@ -284,7 +261,6 @@ export class TaskService {
     return { modifiedCount: result.modifiedCount };
   }
 
-  // Get task statistics
   static async getTaskStats(userId: string): Promise<TaskStats> {
     const tasks = await Task.find({ userId: new mongoose.Types.ObjectId(userId) });
 
@@ -304,7 +280,6 @@ export class TaskService {
     const now = new Date();
 
     tasks.forEach((task) => {
-      // Status counts
       if (task.status === 'completed') {
         stats.completed++;
         stats.totalXpEarned += task.xpValue;
@@ -315,19 +290,14 @@ export class TaskService {
         stats.inProgress++;
       }
 
-      // Overdue count
       if (task.deadline && task.status !== 'completed' && now > task.deadline) {
         stats.overdue++;
       }
-
-      // Category breakdown
       stats.categoryBreakdown[task.category] = (stats.categoryBreakdown[task.category] || 0) + 1;
 
-      // Difficulty breakdown
       stats.difficultyBreakdown[task.difficulty] = (stats.difficultyBreakdown[task.difficulty] || 0) + 1;
     });
 
-    // Calculate completion rate
     stats.completionRate = stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
 
     return stats;
@@ -343,9 +313,7 @@ export class TaskService {
     }).sort({ deadline: 1 });
   }
 
-  // Helper method to calculate level from XP
   private static calculateLevel(xp: number): number {
-    // Level formula from README: XP = 500 * (n-1) + 1000 * ((n-1) * (n-2) / 2)
     let level = 1;
     let requiredXP = 0;
 
@@ -357,26 +325,21 @@ export class TaskService {
     return level - 1;
   }
 
-  // Helper method to update user streak
   private static async updateUserStreak(user: any): Promise<void> {
     const today = new Date().toDateString();
     const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate).toDateString() : null;
     const yesterday = new Date(Date.now() - 86400000).toDateString();
 
     if (lastActive === today) {
-      // Already active today, no change
       return;
     } else if (lastActive === yesterday) {
-      // Consecutive day, increment streak
       user.streak += 1;
       user.lastActiveDate = new Date();
     } else {
-      // Streak broken or first task, reset to 1
       user.streak = 1;
       user.lastActiveDate = new Date();
     }
 
-    // Update longest streak if current streak is higher
     if (user.streak > user.stats.longestStreak) {
       user.stats.longestStreak = user.streak;
     }
