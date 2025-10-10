@@ -4,11 +4,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../utils/constants';
 import { useTasks, useTaskStats, useOverdueTasks, useCreateTask, useCompleteTask, useUpdateTaskStatus, useDeleteTask, useUpdateTask } from '../hooks/useTasks';
-import { TaskList } from '../components/tasks/TaskList';
 import { TaskForm } from '../components/tasks/TaskForm';
-import { XPBar } from '../components/gamification/XPBar';
 import { RewardNotification } from '../components/gamification/RewardNotification';
-import { Pagination } from '../components/common/Pagination';
+import { WelcomeBanner, UserStatsCards, XPSection, TaskStatsGrid, OverdueTasksAlert, TaskManagementSection } from '../components/dashboard';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
 
 const Dashboard: React.FC = () => {
@@ -76,7 +74,7 @@ const Dashboard: React.FC = () => {
   const handleCompleteTask = async (taskId: string) => {
     try {
       const result = await completeTaskMutation.mutateAsync(taskId);
-      const task = tasksData?.tasks?.find((t: Task) => t._id === taskId);
+      const task = getCurrentTasks().find((t: Task) => t._id === taskId);
       setRewardNotification({
         isVisible: true,
         rewards: result.rewards,
@@ -153,11 +151,14 @@ const Dashboard: React.FC = () => {
 
   const getCurrentTasks = () => {
     const data = getCurrentTasksData();
-    return data?.tasks || [];
+    return Array.isArray(data) ? data : data?.tasks || [];
   };
 
   const getCurrentPagination = () => {
     const data = getCurrentTasksData();
+    if (Array.isArray(data)) {
+      return { page: currentPage, limit: itemsPerPage, total: data.length, pages: Math.ceil(data.length / itemsPerPage) };
+    }
     return data?.pagination || { page: 1, limit: itemsPerPage, total: 0, pages: 1 };
   };
 
@@ -169,225 +170,106 @@ const Dashboard: React.FC = () => {
     setActiveTab(tab);
     setCurrentPage(1);
   };
-  console.log(getCurrentTasks());
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), 
+                           radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)`
+        }}></div>
+      </div>
+      
       <motion.header
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700"
+        className="relative backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/50 shadow-lg"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <span className="text-2xl">🎮</span>
+          <div className="flex justify-between items-center h-20">
+            <motion.div 
+              className="flex items-center space-x-4"
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-2xl">🎮</span>
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse"></div>
               </div>
-              <div className="ml-4">
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Productivity Dashboard
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                  GameTask Pro
                 </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Level up your productivity</p>
               </div>
-            </div>
+            </motion.div>
             
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Welcome back, <span className="font-medium text-gray-900 dark:text-white">{user.name}</span>!
+            <div className="flex items-center space-x-6">
+              <div className="hidden md:flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Level {user.level} Player</p>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50"
               >
-                {isLoggingOut ? 'Logging out...' : 'Logout'}
+                {isLoggingOut ? 'Signing out...' : 'Sign Out'}
               </motion.button>
             </div>
           </div>
         </div>
       </motion.header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[
-            { label: 'Level', value: user.level, icon: '🏆', color: 'bg-blue-500' },
-            { label: 'XP', value: user.xp.toLocaleString(), icon: '⭐', color: 'bg-purple-500' },
-            { label: 'Coins', value: user.coins.toLocaleString(), icon: '🪙', color: 'bg-yellow-500' },
-            { label: 'Streak', value: `${user.streak} days`, icon: '🔥', color: 'bg-red-500' },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, y: -2 }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6"
-            >
-              <div className="flex items-center">
-                <div className={`${stat.color} rounded-lg p-3 mr-4`}>
-                  <span className="text-xl">{stat.icon}</span>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    {stat.label}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stat.value}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <WelcomeBanner
+          userName={user.name}
+          completedTasks={taskStats?.completed || 0}
+          streak={user.streak}
+          onCreateTask={() => setShowTaskForm(true)}
+        />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8"
-        >
-          <XPBar currentXP={user.xp} />
-        </motion.div>
+        <UserStatsCards
+          level={user.level}
+          xp={user.xp}
+          coins={user.coins}
+          streak={user.streak}
+        />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-8 text-white mb-8"
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="mb-6 md:mb-0">
-              <h2 className="text-3xl font-bold mb-2">
-                🎉 Ready to be productive?
-              </h2>
-              <p className="text-lg opacity-90">
-                Level {user.level} • {user.xp.toLocaleString()} XP • {taskStats?.completed || 0} tasks completed
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowTaskForm(true)}
-                className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-              >
-                Create New Task
-              </motion.button>
-            </div>
-          </div>
-        </motion.div>
+        <XPSection currentXP={user.xp} />
 
-        {taskStats && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-          >
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{taskStats.total}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Total Tasks</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{taskStats.completed}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Completed</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-yellow-600">{taskStats.pending}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Pending</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{taskStats.overdue}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Overdue</div>
-            </div>
-          </motion.div>
-        )}
+        {taskStats && <TaskStatsGrid taskStats={taskStats} />}
 
-        {overdueTasks && overdueTasks.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-8"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">⚠️</span>
-              <h3 className="text-lg font-semibold text-red-800 dark:text-red-400">
-                You have {overdueTasks.length} overdue task{overdueTasks.length !== 1 ? 's' : ''}
-              </h3>
-            </div>
-            <div className="space-y-2">
-              {overdueTasks.slice(0, 3).map((task) => (
-                <div key={task._id} className="text-sm text-red-700 dark:text-red-400">
-                  • {task.title}
-                </div>
-              ))}
-              {overdueTasks.length > 3 && (
-                <div className="text-sm text-red-600 dark:text-red-400">
-                  ... and {overdueTasks.length - 3} more
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
+        <OverdueTasksAlert overdueTasks={overdueTasks || []} />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8"
-        >
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="flex space-x-8 px-6">
-              {[
-                { key: 'overview', label: 'Recent Tasks', count: tasksData?.pagination?.total || 0 },
-                { key: 'pending', label: 'Pending', count: taskStats?.pending || 0 },
-                { key: 'in_progress', label: 'In Progress', count: taskStats?.inProgress || 0 },
-                { key: 'completed', label: 'Completed', count: taskStats?.completed || 0 },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => handleTabChange(tab.key as any)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.key
-                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-                  }`}
-                >
-                  {tab.label} ({tab.count})
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="p-6">
-            <TaskList
-              tasks={getCurrentTasks()}
-              loading={tasksLoading}
-              error={tasksError?.message || null}
-              onComplete={handleCompleteTask}
-              onEdit={handleEditTask}
-              onDelete={handleDeleteTask}
-              onStatusChange={handleStatusChange}
-              emptyMessage={
-                activeTab === 'overview' 
-                  ? "No tasks yet. Create your first task to get started!"
-                  : `No ${activeTab.replace('_', ' ')} tasks`
-              }
-            />
-            
-            <Pagination
-              currentPage={getCurrentPagination().page}
-              totalPages={getCurrentPagination().pages}
-              totalItems={getCurrentPagination().total}
-              itemsPerPage={getCurrentPagination().limit}
-              onPageChange={handlePageChange}
-              loading={tasksLoading}
-            />
-          </div>
-        </motion.div>
+        <TaskManagementSection
+          activeTab={activeTab}
+          tasks={getCurrentTasks()}
+          tasksLoading={tasksLoading}
+          tasksError={tasksError?.message || null}
+          taskStats={taskStats}
+          tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
+          currentPage={getCurrentPagination().page}
+          totalPages={getCurrentPagination().pages}
+          totalItems={getCurrentPagination().total}
+          itemsPerPage={getCurrentPagination().limit}
+          onTabChange={handleTabChange}
+          onPageChange={handlePageChange}
+          onCreateTask={() => setShowTaskForm(true)}
+          onCompleteTask={handleCompleteTask}
+          onEditTask={handleEditTask}
+          onDeleteTask={handleDeleteTask}
+          onStatusChange={handleStatusChange}
+        />
       </main>
 
       <AnimatePresence>

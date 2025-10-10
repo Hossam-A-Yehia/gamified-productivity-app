@@ -1,0 +1,55 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+
+interface TaskStats {
+  total: number;
+  completed: number;
+  pending: number;
+  overdue: number;
+}
+
+interface TaskStatsGridProps {
+  taskStats: TaskStats;
+}
+
+export const TaskStatsGrid: React.FC<TaskStatsGridProps> = ({ taskStats }) => {
+  const stats = [
+    { label: 'Total Tasks', value: taskStats.total, color: 'from-blue-500 to-cyan-600', icon: '📋' },
+    { label: 'Completed', value: taskStats.completed, color: 'from-green-500 to-emerald-600', icon: '✅' },
+    { label: 'Pending', value: taskStats.pending, color: 'from-yellow-500 to-amber-600', icon: '⏳' },
+    { label: 'Overdue', value: taskStats.overdue, color: 'from-red-500 to-rose-600', icon: '⚠️' },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.8 }}
+      className="grid grid-cols-2 md:grid-cols-4 gap-4"
+    >
+      {stats.map((stat, index) => (
+        <motion.div
+          key={stat.label}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8 + index * 0.1, type: "spring" }}
+          whileHover={{ scale: 1.05, y: -5 }}
+          className="group relative overflow-hidden backdrop-blur-xl bg-white/60 dark:bg-gray-800/60 rounded-2xl p-6 text-center shadow-xl border border-white/20 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-300"
+        >
+          <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
+          <div className="relative z-10">
+            <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+              <span className="text-xl">{stat.icon}</span>
+            </div>
+            <div className="text-3xl font-black text-gray-900 dark:text-white mb-1 group-hover:scale-105 transition-transform duration-300">
+              {stat.value}
+            </div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              {stat.label}
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};
