@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../services/authService';
+import { showToast } from '../utils/toast';
 import type { User, RegisterRequest, LoginRequest } from '../types/auth';
 
 interface UseAuthReturn {
@@ -40,31 +41,45 @@ export const useAuth = (): UseAuthReturn => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       setError(null);
+      showToast.success('Registration Successful! 🎉', 'Welcome to your productivity journey!');
     },
     onError: (error: Error) => {
       setError(error.message);
+      showToast.error('Registration Failed', error.message);
     },
   });
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       setError(null);
+      if (response.data?.user) {
+        showToast.loginSuccess(response.data.user.name);
+      } else {
+        showToast.success('Welcome back! 👋', 'Successfully logged in');
+      }
     },
     onError: (error: Error) => {
       setError(error.message);
+      showToast.error('Login Failed', error.message);
     },
   });
 
   const googleAuthMutation = useMutation({
     mutationFn: authService.googleAuth,
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['auth'] });
       setError(null);
+      if (response.data?.user) {
+        showToast.success('Google Sign-in Successful! 🚀', `Welcome, ${response.data.user.name}!`);
+      } else {
+        showToast.success('Google Sign-in Successful! 🚀', 'Successfully authenticated with Google');
+      }
     },
     onError: (error: Error) => {
       setError(error.message);
+      showToast.error('Google Sign-in Failed', error.message);
     },
   });
 
@@ -73,9 +88,11 @@ export const useAuth = (): UseAuthReturn => {
     onSuccess: () => {
       queryClient.clear();
       setError(null);
+      showToast.logoutSuccess();
     },
     onError: (error: Error) => {
       setError(error.message);
+      showToast.error('Logout Failed', error.message);
     },
   });
 

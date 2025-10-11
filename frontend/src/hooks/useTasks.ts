@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { taskService } from '../services/taskService';
+import { showToast } from '../utils/toast';
 import type {
   Task,
   CreateTaskRequest,
@@ -54,8 +55,12 @@ export const useCreateTask = () => {
 
   return useMutation({
     mutationFn: (taskData: CreateTaskRequest) => taskService.createTask(taskData),
-    onSuccess: () => {
+    onSuccess: (newTask) => {
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.all });
+      showToast.taskCreated(newTask.title);
+    },
+    onError: (error: any) => {
+      showToast.error('Failed to create task', error.message);
     },
   });
 };
@@ -70,6 +75,10 @@ export const useUpdateTask = () => {
       queryClient.setQueryData(TASK_QUERY_KEYS.detail(updatedTask._id), updatedTask);
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.stats() });
+      showToast.taskUpdated(updatedTask.title);
+    },
+    onError: (error: any) => {
+      showToast.error('Failed to update task', error.message);
     },
   });
 };
@@ -78,11 +87,17 @@ export const useDeleteTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (taskId: string) => taskService.deleteTask(taskId),
-    onSuccess: (_, taskId) => {
+    mutationFn: ({ taskId, taskTitle }: { taskId: string; taskTitle: string }) => {
+      return taskService.deleteTask(taskId).then(() => taskTitle);
+    },
+    onSuccess: (taskTitle, { taskId }) => {
       queryClient.removeQueries({ queryKey: TASK_QUERY_KEYS.detail(taskId) });
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.stats() });
+      showToast.taskDeleted(taskTitle);
+    },
+    onError: (error: any) => {
+      showToast.error('Failed to delete task', error.message);
     },
   });
 };
@@ -99,6 +114,21 @@ export const useCompleteTask = () => {
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.overdue() });
       queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] });
       queryClient.invalidateQueries({ queryKey: ['auth'] });
+      
+      // Show completion toast with rewards
+      showToast.taskCompleted(
+        result.task.title, 
+        result.rewards.xp, 
+        result.rewards.coins
+      );
+      
+      // Check for level up
+      if (result.rewards.levelUp) {
+        showToast.levelUp(result.rewards.newLevel!);
+      }
+    },
+    onError: (error: any) => {
+      showToast.error('Failed to complete task', error.message);
     },
   });
 };
@@ -114,6 +144,10 @@ export const useUpdateTaskStatus = () => {
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.stats() });
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.overdue() });
+      showToast.success('Task status updated', `"${updatedTask.title}" status changed to ${updatedTask.status}`);
+    },
+    onError: (error: any) => {
+      showToast.error('Failed to update task status', error.message);
     },
   });
 };

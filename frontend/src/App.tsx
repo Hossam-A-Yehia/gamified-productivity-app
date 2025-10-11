@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Toaster } from 'sonner';
 import { useAuth } from './hooks/useAuth';
 import { ROUTES } from './utils/constants';
 import GoogleOAuthProvider from './components/providers/GoogleOAuthProvider';
@@ -135,6 +136,16 @@ const App: React.FC = () => {
         <Router>
           <div className="App">
             <AppRoutes />
+            <Toaster 
+              position="top-center"
+              expand={true}
+              richColors={true}
+              closeButton={true}
+              visibleToasts={3}
+              toastOptions={{
+                duration: 4000,
+              }}
+            />
           </div>
         </Router>
       </GoogleOAuthProvider>

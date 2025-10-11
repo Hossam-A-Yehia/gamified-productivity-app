@@ -96,7 +96,11 @@ const Dashboard: React.FC = () => {
   const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
-        await deleteTaskMutation.mutateAsync(taskId);
+        const task = getCurrentTasks().find((t: Task) => t._id === taskId);
+        await deleteTaskMutation.mutateAsync({ 
+          taskId, 
+          taskTitle: task?.title || 'Unknown Task' 
+        });
       } catch (error) {
         console.error('Failed to delete task:', error);
       }
