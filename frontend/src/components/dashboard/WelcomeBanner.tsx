@@ -230,7 +230,7 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
             }}
             whileTap={{ scale: 0.95 }}
             onClick={onCreateTask}
-            className="group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-3 rounded-xl font-bold text-base shadow-lg border border-white/30 transition-all duration-300 overflow-hidden"
+            className="cursor-pointer group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-3 rounded-xl font-bold text-base shadow-lg border border-white/30 transition-all duration-300 overflow-hidden"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5"

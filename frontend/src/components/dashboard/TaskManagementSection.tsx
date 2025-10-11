@@ -81,7 +81,7 @@ export const TaskManagementSection: React.FC<TaskManagementSectionProps> = ({
                 whileHover={{ scale: 1.05, rotate: 2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onCreateTask}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg transition-all duration-200 flex items-center space-x-2"
+                className="cursor-pointer bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg transition-all duration-200 flex items-center space-x-2"
               >
                 <span>✨</span>
                 <span>New Task</span>
@@ -95,7 +95,7 @@ export const TaskManagementSection: React.FC<TaskManagementSectionProps> = ({
                   onClick={() => onTabChange(tab.key as any)}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center space-x-2 ${
+                  className={`cursor-pointer flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center space-x-2 ${
                     activeTab === tab.key
                       ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-lg'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-gray-700/50'

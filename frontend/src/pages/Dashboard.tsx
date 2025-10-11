@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES, TASK_STATUS, DASHBOARD_TABS, SORT_ORDER, LOADING_STATES, type DashboardTab } from '../utils/constants';
 import { useTasks, useTaskStats, useOverdueTasks, useCreateTask, useCompleteTask, useUpdateTaskStatus, useDeleteTask, useUpdateTask } from '../hooks/useTasks';
 import { TaskForm } from '../components/tasks/TaskForm';
+import { DeleteTaskModal } from '../components/tasks/DeleteTaskModal';
 import { RewardNotification } from '../components/gamification/RewardNotification';
 import { WelcomeBanner, UserStatsCards, XPSection, TaskStatsGrid, OverdueTasksAlert, TaskManagementSection } from '../components/dashboard';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
@@ -15,6 +16,8 @@ const Dashboard: React.FC = () => {
   
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [activeTab, setActiveTab] = useState<DashboardTab>(DASHBOARD_TABS.OVERVIEW);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(3); 
@@ -93,18 +96,31 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      try {
-        const task = getCurrentTasks().find((t: Task) => t._id === taskId);
-        await deleteTaskMutation.mutateAsync({ 
-          taskId, 
-          taskTitle: task?.title || 'Unknown Task' 
-        });
-      } catch (error) {
-        console.error('Failed to delete task:', error);
-      }
+  const handleDeleteTask = (taskId: string) => {
+    const task = getCurrentTasks().find((t: Task) => t._id === taskId);
+    if (task) {
+      setTaskToDelete(task);
+      setShowDeleteModal(true);
     }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!taskToDelete) return;
+    try {
+      await deleteTaskMutation.mutateAsync({ 
+        taskId: taskToDelete._id, 
+        taskTitle: taskToDelete.title || 'Unknown Task' 
+      });
+      setShowDeleteModal(false);
+      setTaskToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setTaskToDelete(null);
   };
 
   const handleEditTask = (task: Task) => {
@@ -225,7 +241,7 @@ const Dashboard: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50"
+                className="cursor-pointer bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50"
               >
                 {isLoggingOut ? LOADING_STATES.SIGNING_OUT : LOADING_STATES.SIGN_OUT}
               </motion.button>
@@ -292,6 +308,14 @@ const Dashboard: React.FC = () => {
         onClose={() => setRewardNotification(prev => ({ ...prev, isVisible: false }))}
         rewards={rewardNotification.rewards}
         taskTitle={rewardNotification.taskTitle}
+      />
+
+      <DeleteTaskModal
+        isOpen={showDeleteModal}
+        task={taskToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isDeleting={deleteTaskMutation.isPending}
       />
     </div>
   );
