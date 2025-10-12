@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { XPBar } from '../gamification/XPBar';
 
@@ -6,13 +6,8 @@ interface XPSectionProps {
   currentXP: number;
 }
 
-const AnimatedOrb = ({ className, duration, initial, animate }: any) => (
-  <motion.div
-    className={`absolute rounded-full mix-blend-overlay filter blur-3xl opacity-40 ${className}`}
-    initial={initial}
-    animate={animate}
-    transition={{ duration, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' }}
-  />
+const StaticOrb = ({ className }: { className: string }) => (
+  <div className={`absolute rounded-full mix-blend-overlay filter blur-3xl opacity-20 ${className}`} />
 );
 
 export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
@@ -20,14 +15,18 @@ export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
   const currentLevelXP = currentXP % levelXP;
   const progress = (currentLevelXP / levelXP) * 100;
 
-  const getMotivationalMessage = () => {
+  const motivational = useMemo(() => {
     if (progress > 80) return { msg: "Almost there! Keep pushing!", emoji: '🔥' };
     if (progress > 50) return { msg: "Great progress! You're on a roll!", emoji: '🚀' };
     if (progress > 20) return { msg: "Keep up the great work!", emoji: '💪' };
     return { msg: "Every step counts. Let's go!", emoji: '🌱' };
-  };
+  }, [progress]);
 
-  const motivational = getMotivationalMessage();
+  const stats = useMemo(() => [
+    { value: currentXP.toLocaleString(), label: "Total XP" },
+    { value: currentLevelXP.toLocaleString(), label: "Current Level XP" },
+    { value: (levelXP - currentLevelXP).toLocaleString(), label: "XP Needed for Next Level" }
+  ], [currentXP, currentLevelXP, levelXP]);
 
   return (
     <motion.div
@@ -36,9 +35,9 @@ export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
       transition={{ delay: 0.4, type: 'spring' }}
       className="relative overflow-hidden bg-slate-900/70 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/10 p-8"
     >
-      <AnimatedOrb className="w-72 h-72 bg-indigo-500" duration={15} initial={{ x: -100, y: -50 }} animate={{ x: 100, y: 50, scale: 1.2 }} />
-      <AnimatedOrb className="w-64 h-64 bg-purple-500" duration={12} initial={{ x: 200, y: 100 }} animate={{ x: 0, y: -100, scale: 0.8 }} />
-      <AnimatedOrb className="w-56 h-56 bg-pink-500" duration={18} initial={{ x: 50, y: 150 }} animate={{ x: -150, y: -50, scale: 1.1 }} />
+      <StaticOrb className="w-72 h-72 bg-indigo-500 -top-20 -left-20" />
+      <StaticOrb className="w-64 h-64 bg-purple-500 -bottom-16 -right-16" />
+      <StaticOrb className="w-56 h-56 bg-pink-500 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
 
       <div className="relative z-10">
         <div className="text-center mb-8">
@@ -49,9 +48,7 @@ export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
             transition={{ delay: 0.6 }}
           >
             Level Progression
-            <motion.span animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 3 }}>
-              🚀
-            </motion.span>
+            <span>🚀</span>
           </motion.h3>
           <motion.p
             className="text-slate-300 text-lg"
@@ -77,9 +74,9 @@ export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-white">
-          <StatCard value={currentXP.toLocaleString()} label="Total XP" delay={0.9} />
-          <StatCard value={currentLevelXP.toLocaleString()} label="Current Level XP" delay={1.0} />
-          <StatCard value={(levelXP - currentLevelXP).toLocaleString()} label="XP Needed for Next Level" delay={1.1} />
+          {stats.map((stat, index) => (
+            <StatCard key={stat.label} value={stat.value} label={stat.label} delay={0.9 + index * 0.1} />
+          ))}
         </div>
       </div>
     </motion.div>
@@ -88,10 +85,11 @@ export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
 
 const StatCard = ({ value, label, delay }: { value: string; label: string; delay: number }) => (
   <motion.div
-    className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10"
+    className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-white/10 transition-colors duration-200"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay }}
+    transition={{ delay, duration: 0.4 }}
+    whileHover={{ scale: 1.02 }}
   >
     <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300 mb-1">{value}</p>
     <p className="text-xs text-slate-300 uppercase tracking-wider">{label}</p>

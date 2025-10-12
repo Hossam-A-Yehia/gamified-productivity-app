@@ -83,10 +83,10 @@ const FeatureCards: React.FC<FeatureCardsProps> = ({ side = 'mobile' }) => {
               delay: index * 0.5 + 1.5
             }}
           >
-            {feature.icon}
+            {feature?.icon}
           </motion.div>
           <div className={`${side === LAYOUT_SIDES.MOBILE ? 'text-sm' : 'text-base font-medium'} text-gray-600 dark:text-gray-400`}>
-            {feature.label}
+            {feature?.label}
           </div>
         </motion.div>
       ))}

@@ -57,14 +57,10 @@ export const XPBar: React.FC<XPBarProps> = ({
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(progressPercentage, 100)}%` }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full relative"
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full relative overflow-hidden"
           >
-            <motion.div
-              animate={{ x: ['0%', '100%'] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12"
-            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 opacity-60" />
           </motion.div>
         </div>
         

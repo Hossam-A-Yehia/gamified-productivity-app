@@ -21,19 +21,15 @@ export const TaskStatsGrid: React.FC<TaskStatsGridProps> = ({ taskStats }) => {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8 }}
-      className="grid grid-cols-2 md:grid-cols-4 gap-4"
-    >
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
         <motion.div
           key={stat.label}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.8 + index * 0.1, type: "spring" }}
-          className="relative overflow-hidden bg-slate-800/40 backdrop-blur-xl rounded-2xl p-6 text-center shadow-lg border border-white/10"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1, duration: 0.3 }}
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="relative overflow-hidden bg-slate-800/40 backdrop-blur-xl rounded-2xl p-6 text-center shadow-lg border border-white/10 transition-transform duration-200"
         >
           <div className="relative z-10">
             <div className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg`}>
@@ -48,6 +44,6 @@ export const TaskStatsGrid: React.FC<TaskStatsGridProps> = ({ taskStats }) => {
           </div>
         </motion.div>
       ))}
-    </motion.div>
+    </div>
   );
 };

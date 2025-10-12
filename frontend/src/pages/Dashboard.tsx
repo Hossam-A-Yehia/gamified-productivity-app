@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES, TASK_STATUS, DASHBOARD_TABS, SORT_ORDER, LOADING_STATES, type DashboardTab } from '../utils/constants';
@@ -145,11 +145,7 @@ const Dashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-          />
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4 animate-spin" />
           <p className="text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
         </div>
       </div>
@@ -201,22 +197,15 @@ const Dashboard: React.FC = () => {
         }}></div>
       </div>
       
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/50 shadow-lg"
-      >
+      <header className="relative backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/50 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <motion.div 
-              className="flex items-center space-x-4"
-              whileHover={{ scale: 1.02 }}
-            >
+            <div className="flex items-center space-x-4 hover:scale-[1.01] transition-transform duration-200">
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <span className="text-2xl">🎮</span>
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
@@ -224,7 +213,7 @@ const Dashboard: React.FC = () => {
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Level up your productivity</p>
               </div>
-            </motion.div>
+            </div>
             
             <div className="flex items-center space-x-6">
               <div className="hidden md:flex items-center space-x-4">
@@ -236,19 +225,17 @@ const Dashboard: React.FC = () => {
                   {user.name.charAt(0).toUpperCase()}
                 </div>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="cursor-pointer bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50"
+                className="cursor-pointer bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isLoggingOut ? LOADING_STATES.SIGNING_OUT : LOADING_STATES.SIGN_OUT}
-              </motion.button>
+              </button>
             </div>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <WelcomeBanner

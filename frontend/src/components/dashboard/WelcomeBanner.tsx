@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 
 interface WelcomeBannerProps {
@@ -35,21 +35,19 @@ const getTimeBasedGreeting = () => {
   };
 };
 
-const FloatingParticle: React.FC<{ delay: number; duration: number; emoji: string }> = ({ delay, duration, emoji }) => (
+const FloatingParticle: React.FC<{ delay: number; duration: number; emoji: string; initialX: number }> = ({ delay, duration, emoji, initialX }) => (
   <motion.div
-    className="absolute text-2xl opacity-30"
-    initial={{ y: 100, x: Math.random() * 400, opacity: 0 }}
+    className="absolute text-2xl opacity-20"
+    initial={{ y: 100, x: initialX, opacity: 0 }}
     animate={{ 
       y: -100, 
-      x: Math.random() * 400,
-      opacity: [0, 0.6, 0],
-      rotate: [0, 360]
+      opacity: [0, 0.4, 0]
     }}
     transition={{
-      duration,
-      delay,
+      duration: duration,
+      delay: delay,
       repeat: Infinity,
-      repeatDelay: Math.random() * 3,
+      repeatDelay: 2,
       ease: "easeOut"
     }}
   >
@@ -63,7 +61,10 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
   streak,
   onCreateTask
 }) => {
-  const timeGreeting = getTimeBasedGreeting();
+  const timeGreeting = useMemo(() => getTimeBasedGreeting(), []);
+  const particlePositions = useMemo(() => 
+    Array.from({ length: 3 }, (_, i) => Math.random() * 300 + i * 100), []
+  );
 
   return (
     <motion.div
@@ -75,43 +76,19 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
       <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-white/10"></div>
       
       <div className="absolute inset-0">
-        {[...Array(6)].map((_, i) => (
+        {particlePositions.map((x, i) => (
           <FloatingParticle
             key={i}
-            delay={i * 0.8}
-            duration={4 + Math.random() * 2}
+            delay={i * 1.5}
+            duration={6}
             emoji={timeGreeting.particles}
+            initialX={x}
           />
         ))}
       </div>
 
-      <motion.div
-        className="absolute -top-20 -right-20 w-80 h-80 rounded-full opacity-20"
-        style={{ background: `linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1))` }}
-        animate={{ 
-          rotate: [0, 360],
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ 
-          duration: 20, 
-          repeat: Infinity, 
-          ease: "linear" 
-        }}
-      />
-
-      <motion.div
-        className="absolute -bottom-16 -left-16 w-60 h-60 rounded-full opacity-15"
-        style={{ background: `linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05))` }}
-        animate={{ 
-          rotate: [360, 0],
-          scale: [1, 0.9, 1]
-        }}
-        transition={{ 
-          duration: 15, 
-          repeat: Infinity, 
-          ease: "linear" 
-        }}
-      />
+      <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full opacity-10 bg-gradient-to-br from-white/20 to-white/5" />
+      <div className="absolute -bottom-16 -left-16 w-60 h-60 rounded-full opacity-10 bg-gradient-to-br from-white/15 to-white/5" />
       
       <div className="relative z-10">
         <motion.div
@@ -123,31 +100,13 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
           <div className="flex items-center space-x-4 mb-6 md:mb-0">
             <motion.div
               className="relative"
-              whileHover={{ scale: 1.1 }}
-              animate={{ 
-                rotate: [0, 5, -5, 0],
-                scale: [1, 1.05, 1]
-              }}
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
-                repeatDelay: 2 
-              }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
             >
               <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${timeGreeting.accentColor} flex items-center justify-center shadow-2xl border border-white/20`}>
                 <span className="text-3xl">{timeGreeting.emoji}</span>
               </div>
-              <motion.div
-                className="absolute -inset-2 rounded-2xl border-2 border-white/30"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  opacity: [0.5, 0.8, 0.5]
-                }}
-                transition={{ 
-                  duration: 2, 
-                  repeat: Infinity 
-                }}
-              />
+              <div className="absolute -inset-2 rounded-2xl border-2 border-white/20 opacity-50" />
             </motion.div>
             
             <div>
@@ -187,29 +146,23 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
             <div className="flex space-x-4">
               <motion.div 
                 className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
-                whileHover={{ scale: 1.05, y: -2 }}
+                whileHover={{ scale: 1.02, y: -1 }}
+                transition={{ duration: 0.2 }}
               >
-                <motion.div 
-                  className="text-2xl font-black mb-1"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                >
+                <div className="text-2xl font-black mb-1">
                   {completedTasks}
-                </motion.div>
+                </div>
                 <div className="text-sm font-medium opacity-80">Tasks Done</div>
               </motion.div>
               
               <motion.div 
                 className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
-                whileHover={{ scale: 1.05, y: -2 }}
+                whileHover={{ scale: 1.02, y: -1 }}
+                transition={{ duration: 0.2 }}
               >
-                <motion.div 
-                  className="text-2xl font-black mb-1 flex items-center justify-center"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5 }}
-                >
+                <div className="text-2xl font-black mb-1 flex items-center justify-center">
                   {streak} 🔥
-                </motion.div>
+                </div>
                 <div className="text-sm font-medium opacity-80">Day Streak</div>
               </motion.div>
             </div>
@@ -223,36 +176,17 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
           className="flex flex-wrap gap-4 items-center"
         >
           <motion.button
-            whileHover={{ 
-              scale: 1.05, 
-              rotate: 1,
-              boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
-            }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={onCreateTask}
-            className="cursor-pointer group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-3 rounded-xl font-bold text-base shadow-lg border border-white/30 transition-all duration-300 overflow-hidden"
+            className="cursor-pointer group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-3 rounded-xl font-bold text-base shadow-lg border border-white/30 transition-all duration-200 overflow-hidden"
           >
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5"
-              initial={{ x: "-100%" }}
-              whileHover={{ x: "100%" }}
-              transition={{ duration: 0.6 }}
-            />
             <span className="relative flex items-center space-x-3">
-              <motion.span
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              >
-                ✨
-              </motion.span>
+              <span>✨</span>
               <span>Create New Task</span>
-              <motion.span
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-                animate={{ x: [0, 5, 0] }}
-                transition={{ duration: 1, repeat: Infinity }}
-              >
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 →
-              </motion.span>
+              </span>
             </span>
           </motion.button>
 
