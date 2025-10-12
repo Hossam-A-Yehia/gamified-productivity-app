@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { TaskService, TaskFilters } from '../services/taskService';
+import { TaskFilters, TaskService } from '../services/taskService';
+import { AchievementService } from '../services/achievementService';
 import { AuthenticatedRequest } from '../types/express';
 
 export class TaskController {
@@ -159,6 +160,8 @@ export class TaskController {
       const taskId = req.params.id;
 
       const result = await TaskService.completeTask(userId, taskId);
+      
+      const newAchievements = await AchievementService.checkAchievements(userId, result.task);
 
       res.status(200).json({
         success: true,
@@ -170,6 +173,7 @@ export class TaskController {
             levelUp: result.levelUp,
             newLevel: result.newLevel,
           },
+          achievements: newAchievements,
         },
         message: result.levelUp 
           ? `Task completed! Level up to ${result.newLevel}! 🎉` 
