@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
 import { useAuth } from './hooks/useAuth';
 import { ROUTES } from './utils/constants';
 import GoogleOAuthProvider from './components/providers/GoogleOAuthProvider';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
-import Login from './pages/auth/Login/Login';
-import Register from './pages/auth/Register/Register';
-import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword/ResetPassword';
-import Dashboard from './pages/Dashboard';
+// Lazy load pages for code splitting
+const Login = lazy(() => import('./pages/auth/Login/Login'));
+const Register = lazy(() => import('./pages/auth/Register/Register'));
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/auth/ResetPassword/ResetPassword'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,22 +28,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-        </motion.div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return isAuthenticated ? <>{children}</> : <Navigate to={ROUTES.LOGIN} replace />;
@@ -51,22 +38,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-            className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"
-          />
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-        </motion.div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return isAuthenticated ? <Navigate to={ROUTES.DASHBOARD} replace /> : <>{children}</>;
@@ -81,7 +53,9 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.LOGIN}
           element={
             <PublicRoute>
-              <Login />
+              <Suspense fallback={<LoadingSpinner />}>
+                <Login />
+              </Suspense>
             </PublicRoute>
           }
         />
@@ -89,7 +63,9 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.REGISTER}
           element={
             <PublicRoute>
-              <Register />
+              <Suspense fallback={<LoadingSpinner />}>
+                <Register />
+              </Suspense>
             </PublicRoute>
           }
         />
@@ -97,7 +73,9 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.FORGOT_PASSWORD}
           element={
             <PublicRoute>
-              <ForgotPassword />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ForgotPassword />
+              </Suspense>
             </PublicRoute>
           }
         />
@@ -105,7 +83,9 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.RESET_PASSWORD}
           element={
             <PublicRoute>
-              <ResetPassword />
+              <Suspense fallback={<LoadingSpinner />}>
+                <ResetPassword />
+              </Suspense>
             </PublicRoute>
           }
         />
@@ -115,7 +95,9 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.DASHBOARD}
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Suspense fallback={<LoadingSpinner />}>
+                <Dashboard />
+              </Suspense>
             </ProtectedRoute>
           }
         />

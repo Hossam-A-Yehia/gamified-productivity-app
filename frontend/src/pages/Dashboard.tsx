@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES, TASK_STATUS, DASHBOARD_TABS, SORT_ORDER, LOADING_STATES, type DashboardTab } from '../utils/constants';
 import { useTasks, useTaskStats, useOverdueTasks, useCreateTask, useCompleteTask, useUpdateTaskStatus, useDeleteTask, useUpdateTask } from '../hooks/useTasks';
-import { TaskForm } from '../components/tasks/TaskForm';
 import { DeleteTaskModal } from '../components/tasks/DeleteTaskModal';
 import { RewardNotification } from '../components/gamification/RewardNotification';
-import { WelcomeBanner, UserStatsCards, XPSection, TaskStatsGrid, OverdueTasksAlert, TaskManagementSection } from '../components/dashboard';
+import { OverdueTasksAlert } from '../components/dashboard';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
+
+const WelcomeBanner = lazy(() => import('../components/dashboard/WelcomeBanner').then(module => ({ default: module.WelcomeBanner })));
+const UserStatsCards = lazy(() => import('../components/dashboard/UserStatsCards').then(module => ({ default: module.UserStatsCards })));
+const XPSection = lazy(() => import('../components/dashboard/XPSection').then(module => ({ default: module.XPSection })));
+const TaskStatsGrid = lazy(() => import('../components/dashboard/TaskStatsGrid').then(module => ({ default: module.TaskStatsGrid })));
+const TaskManagementSection = lazy(() => import('../components/dashboard/TaskManagementSection').then(module => ({ default: module.TaskManagementSection })));
+
+const TaskForm = lazy(() => import('../components/tasks/TaskForm').then(module => ({ default: module.TaskForm })));
 
 const Dashboard: React.FC = () => {
   const { user, logout, isLoggingOut } = useAuth();
@@ -238,55 +246,69 @@ const Dashboard: React.FC = () => {
       </header>
 
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <WelcomeBanner
-          userName={user.name}
-          completedTasks={taskStats?.completed || 0}
-          streak={user.streak}
-          onCreateTask={() => setShowTaskForm(true)}
-        />
+        <Suspense fallback={<LoadingSpinner size="sm" message="Loading welcome section..." />}>
+          <WelcomeBanner
+            userName={user.name}
+            completedTasks={taskStats?.completed || 0}
+            streak={user.streak}
+            onCreateTask={() => setShowTaskForm(true)}
+          />
+        </Suspense>
 
-        <UserStatsCards
-          level={user.level}
-          xp={user.xp}
-          coins={user.coins}
-          streak={user.streak}
-        />
+        <Suspense fallback={<LoadingSpinner size="sm" message="Loading stats..." />}>
+          <UserStatsCards
+            level={user.level}
+            xp={user.xp}
+            coins={user.coins}
+            streak={user.streak}
+          />
+        </Suspense>
 
-        <XPSection currentXP={user.xp} />
+        <Suspense fallback={<LoadingSpinner size="sm" message="Loading XP section..." />}>
+          <XPSection currentXP={user.xp} />
+        </Suspense>
 
-        {taskStats && <TaskStatsGrid taskStats={taskStats} />}
+        {taskStats && (
+          <Suspense fallback={<LoadingSpinner size="sm" message="Loading task stats..." />}>
+            <TaskStatsGrid taskStats={taskStats} />
+          </Suspense>
+        )}
 
         <OverdueTasksAlert overdueTasks={overdueTasks || []} />
 
-        <TaskManagementSection
-          activeTab={activeTab}
-          tasks={getCurrentTasks()}
-          tasksLoading={tasksLoading}
-          tasksError={tasksError?.message || null}
-          taskStats={taskStats}
-          tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
-          currentPage={getCurrentPagination().page}
-          totalPages={getCurrentPagination().pages}
-          totalItems={getCurrentPagination().total}
-          itemsPerPage={getCurrentPagination().limit}
-          onTabChange={handleTabChange}
-          onPageChange={handlePageChange}
-          onCreateTask={() => setShowTaskForm(true)}
-          onCompleteTask={handleCompleteTask}
-          onEditTask={handleEditTask}
-          onDeleteTask={handleDeleteTask}
-          onStatusChange={handleStatusChange}
-        />
+        <Suspense fallback={<LoadingSpinner size="sm" message="Loading task management..." />}>
+          <TaskManagementSection
+            activeTab={activeTab}
+            tasks={getCurrentTasks()}
+            tasksLoading={tasksLoading}
+            tasksError={tasksError?.message || null}
+            taskStats={taskStats}
+            tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
+            currentPage={getCurrentPagination().page}
+            totalPages={getCurrentPagination().pages}
+            totalItems={getCurrentPagination().total}
+            itemsPerPage={getCurrentPagination().limit}
+            onTabChange={handleTabChange}
+            onPageChange={handlePageChange}
+            onCreateTask={() => setShowTaskForm(true)}
+            onCompleteTask={handleCompleteTask}
+            onEditTask={handleEditTask}
+            onDeleteTask={handleDeleteTask}
+            onStatusChange={handleStatusChange}
+          />
+        </Suspense>
       </main>
 
       <AnimatePresence>
         {showTaskForm && (
-          <TaskForm
-            task={editingTask || undefined}
-            onSubmit={handleTaskFormSubmit}
-            onCancel={handleCloseTaskForm}
-            loading={createTaskMutation.isPending || updateTaskMutation.isPending}
-          />
+          <Suspense fallback={<LoadingSpinner message="Loading task form..." />}>
+            <TaskForm
+              task={editingTask || undefined}
+              onSubmit={handleTaskFormSubmit}
+              onCancel={handleCloseTaskForm}
+              loading={createTaskMutation.isPending || updateTaskMutation.isPending}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
