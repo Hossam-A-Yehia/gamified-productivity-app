@@ -1,13 +1,16 @@
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import { connectMongoDB } from "./config/database";
 import { connectRedis } from "./config/redis";
 import authRoutes from "./routes/auth";
 import taskRoutes from "./routes/tasks";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
