@@ -6,7 +6,6 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 import express from "express";
 import cors from "cors";
 import { connectMongoDB } from "./config/database";
-import { connectRedis } from "./config/redis";
 import authRoutes from "./routes/auth";
 import taskRoutes from "./routes/tasks";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
@@ -22,6 +21,20 @@ app.use(cors({
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Middleware to ensure database connection for each request
+app.use(async (req, res, next) => {
+  try {
+    await connectMongoDB();
+    next();
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Database connection failed'
+    });
+  }
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
@@ -48,8 +61,12 @@ app.get("/api/health", (_, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  connectMongoDB();
-  connectRedis();
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
+// Export for Vercel serverless
+export default app;
