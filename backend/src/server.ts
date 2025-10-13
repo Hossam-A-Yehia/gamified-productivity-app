@@ -9,6 +9,7 @@ import { connectMongoDB } from "./config/database";
 import authRoutes from "./routes/auth";
 import taskRoutes from "./routes/tasks";
 import achievementRoutes from "./routes/achievements";
+import leaderboardRoutes from "./routes/leaderboard";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 
@@ -40,6 +41,7 @@ app.use(async (req, res, next) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/achievements", achievementRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 
 app.get("/api/ping", (_, res) => {
   res.json({ 
