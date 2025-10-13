@@ -94,6 +94,7 @@ export interface TaskCompletionResponse {
     levelUp?: boolean;
     newLevel?: number;
   };
+  achievements?: string[];
 }
 
 export interface BulkUpdateRequest {

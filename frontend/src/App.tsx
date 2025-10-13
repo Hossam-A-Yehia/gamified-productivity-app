@@ -14,6 +14,7 @@ const Register = lazy(() => import('./pages/auth/Register/Register'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Achievements = lazy(() => import('./pages/Achievements'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,6 +98,16 @@ const AppRoutes: React.FC = () => {
             <ProtectedRoute>
               <Suspense fallback={<LoadingSpinner />}>
                 <Dashboard />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.ACHIEVEMENTS}
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Achievements />
               </Suspense>
             </ProtectedRoute>
           }

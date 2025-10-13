@@ -48,7 +48,7 @@ class ApiService {
               cookieManager.set(COOKIE_NAMES.ACCESS_TOKEN, accessToken, {
                 expires: 1 / 96, // 15 minutes
                 secure: true,
-                sameSite: "lax",
+                sameSite: "LAX",
               });
 
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;

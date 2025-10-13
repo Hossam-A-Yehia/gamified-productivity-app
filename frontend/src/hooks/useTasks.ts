@@ -114,17 +114,22 @@ export const useCompleteTask = () => {
       queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.overdue() });
       queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] });
       queryClient.invalidateQueries({ queryKey: ['auth'] });
+      queryClient.invalidateQueries({ queryKey: ['achievements', 'user'] });
       
-      // Show completion toast with rewards
       showToast.taskCompleted(
         result.task.title, 
         result.rewards.xp, 
         result.rewards.coins
       );
       
-      // Check for level up
       if (result.rewards.levelUp) {
         showToast.levelUp(result.rewards.newLevel!);
+      }
+
+      if (result.achievements && result.achievements.length > 0) {
+        result.achievements.forEach((achievement) => {
+          showToast.success(`🏆 Achievement Unlocked: ${achievement}`);
+        });
       }
     },
     onError: (error: any) => {
