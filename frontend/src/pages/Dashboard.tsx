@@ -231,6 +231,13 @@ const Dashboard: React.FC = () => {
                 <span>🏆</span>
                 <span className="hidden sm:inline">Achievements</span>
               </button>
+              <button
+                onClick={() => navigate(ROUTES.LEADERBOARD)}
+                className="cursor-pointer bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+              >
+                <span>📊</span>
+                <span className="hidden sm:inline">Leaderboard</span>
+              </button>
               <div className="hidden md:flex items-center space-x-4">
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>

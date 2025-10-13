@@ -8,13 +8,13 @@ import { ROUTES } from './utils/constants';
 import GoogleOAuthProvider from './components/providers/GoogleOAuthProvider';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 
-// Lazy load pages for code splitting
 const Login = lazy(() => import('./pages/auth/Login/Login'));
 const Register = lazy(() => import('./pages/auth/Register/Register'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Achievements = lazy(() => import('./pages/Achievements'));
+const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -108,6 +108,16 @@ const AppRoutes: React.FC = () => {
             <ProtectedRoute>
               <Suspense fallback={<LoadingSpinner />}>
                 <Achievements />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.LEADERBOARD}
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Leaderboard />
               </Suspense>
             </ProtectedRoute>
           }
