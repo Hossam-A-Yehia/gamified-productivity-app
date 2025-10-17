@@ -157,6 +157,10 @@ class TaskService {
       streakBonus
     );
   }
+
+  async bulkDeleteTasks(taskIds: string[]): Promise<void> {
+    await apiService.post('/tasks/bulk-delete', { taskIds });
+  }
 }
 
 export const taskService = new TaskService();

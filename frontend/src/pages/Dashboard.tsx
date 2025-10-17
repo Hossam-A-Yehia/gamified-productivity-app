@@ -225,6 +225,13 @@ const Dashboard: React.FC = () => {
             
             <div className="flex items-center space-x-6">
               <button
+                onClick={() => navigate(ROUTES.TASKS)}
+                className="cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
+              >
+                <span>📋</span>
+                <span className="hidden sm:inline">Tasks</span>
+              </button>
+              <button
                 onClick={() => navigate(ROUTES.ACHIEVEMENTS)}
                 className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
               >

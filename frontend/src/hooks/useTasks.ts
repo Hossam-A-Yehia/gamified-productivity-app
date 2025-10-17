@@ -168,6 +168,18 @@ export const useBulkUpdateTasks = () => {
   });
 };
 
+export const useBulkDeleteTasks = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (taskIds: string[]) => taskService.bulkDeleteTasks(taskIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TASK_QUERY_KEYS.stats() });
+    },
+  });
+};
+
 export const usePendingTasks = () => {
   return useTasks({ status: 'pending', limit: 100 });
 };
@@ -213,4 +225,28 @@ export const useTaskSearch = (searchTerm: string) => {
     search: searchTerm,
     limit: 50,
   });
+};
+
+export const useTaskOperations = (filters: TaskFilters = {}) => {
+  const tasksQuery = useTasks(filters);
+  const createTaskMutation = useCreateTask();
+  const updateTaskMutation = useUpdateTask();
+  const deleteTaskMutation = useDeleteTask();
+  const completeTaskMutation = useCompleteTask();
+  const updateTaskStatusMutation = useUpdateTaskStatus();
+  const bulkUpdateMutation = useBulkUpdateTasks();
+  const bulkDeleteMutation = useBulkDeleteTasks();
+
+  return {
+    tasks: tasksQuery.data?.tasks,
+    isLoading: tasksQuery.isLoading,
+    error: tasksQuery.error,
+        createTask: createTaskMutation,
+    updateTask: updateTaskMutation,
+    deleteTask: deleteTaskMutation,
+    completeTask: completeTaskMutation,
+    updateTaskStatus: updateTaskStatusMutation,
+    bulkUpdateTasks: bulkUpdateMutation,
+    bulkDeleteTasks: bulkDeleteMutation,
+  };
 };

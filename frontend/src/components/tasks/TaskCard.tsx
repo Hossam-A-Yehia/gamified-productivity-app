@@ -44,32 +44,30 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02, y: -2 }}
-      className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 ${
+      className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 h-full flex flex-col ${
         isOverdue ? 'border-red-300 bg-red-50 dark:bg-red-900/20' : ''
       }`}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className={`inline-block w-3 h-3 rounded-full ${category?.color || 'bg-gray-500'}`} />
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              {category?.label || task.category}
+      <div className="flex-grow">
+        <div className="flex items-center gap-2 mb-2">
+          <span className={`inline-block w-3 h-3 rounded-full ${category?.color || 'bg-gray-500'}`} />
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            {category?.label || task.category}
+          </span>
+          {isOverdue && (
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+              Overdue
             </span>
-            {isOverdue && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-                Overdue
-              </span>
-            )}
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
-            {task.title}
-          </h3>
-          {task.description && (
-            <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-3">
-              {task.description}
-            </p>
           )}
         </div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+          {task.title}
+        </h3>
+        {task.description && (
+          <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3 mb-4">
+            {task.description}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">

@@ -13,6 +13,7 @@ const Register = lazy(() => import('./pages/auth/Register/Register'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Tasks = lazy(() => import('./pages/Tasks'));
 const Achievements = lazy(() => import('./pages/Achievements'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 
@@ -98,6 +99,16 @@ const AppRoutes: React.FC = () => {
             <ProtectedRoute>
               <Suspense fallback={<LoadingSpinner />}>
                 <Dashboard />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.TASKS}
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Tasks />
               </Suspense>
             </ProtectedRoute>
           }
