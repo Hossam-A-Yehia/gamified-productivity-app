@@ -7,6 +7,7 @@ import {
   Trophy, 
   Users, 
   Target, 
+  Timer,
   Settings, 
   LogOut, 
   Menu, 
@@ -38,6 +39,12 @@ const navigationItems = [
     path: ROUTES.CHALLENGES,
     icon: Target,
     description: 'Join and compete in challenges'
+  },
+  {
+    name: 'Focus Mode',
+    path: ROUTES.FOCUS,
+    icon: Timer,
+    description: 'Pomodoro and focus sessions'
   },
   {
     name: 'Achievements',

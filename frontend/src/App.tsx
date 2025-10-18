@@ -19,6 +19,7 @@ const Challenges = lazy(() => import('./pages/Challenges'));
 const ChallengeDetail = lazy(() => import('./pages/ChallengeDetail'));
 const Achievements = lazy(() => import('./pages/Achievements'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
+const FocusMode = lazy(() => import('./pages/FocusMode'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -163,6 +164,18 @@ const AppRoutes: React.FC = () => {
               <Layout>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Leaderboard />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.FOCUS}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <FocusMode />
                 </Suspense>
               </Layout>
             </ProtectedRoute>
