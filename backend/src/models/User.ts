@@ -27,12 +27,20 @@ export interface IUser extends Document {
       email: boolean;
       push: boolean;
       inApp: boolean;
+      taskReminders: boolean;
+      challengeUpdates: boolean;
+      achievementAlerts: boolean;
+      focusSessionAlerts: boolean;
     };
     theme: 'light' | 'dark' | 'auto';
     language: string;
+    timezone: string;
     privacy: {
       profilePublic: boolean;
       showInLeaderboard: boolean;
+      allowFriendRequests: boolean;
+      showOnlineStatus: boolean;
+      showStats: boolean;
     };
     focus?: {
       defaultPomodoroLength: number;
@@ -44,6 +52,21 @@ export interface IUser extends Document {
       soundEnabled: boolean;
       notificationsEnabled: boolean;
       xpMultiplier: number;
+    };
+    productivity: {
+      workingHoursStart: string;
+      workingHoursEnd: string;
+      workingDays: number[];
+      dailyGoal: {
+        tasks: number;
+        focusTime: number;
+        xp: number;
+      };
+      weeklyGoal: {
+        tasks: number;
+        focusTime: number;
+        xp: number;
+      };
     };
   };
   stats: {
@@ -153,6 +176,22 @@ const userSchema = new Schema<IUser>({
       inApp: {
         type: Boolean,
         default: true
+      },
+      taskReminders: {
+        type: Boolean,
+        default: true
+      },
+      challengeUpdates: {
+        type: Boolean,
+        default: true
+      },
+      achievementAlerts: {
+        type: Boolean,
+        default: true
+      },
+      focusSessionAlerts: {
+        type: Boolean,
+        default: true
       }
     },
     theme: {
@@ -164,12 +203,28 @@ const userSchema = new Schema<IUser>({
       type: String,
       default: 'en'
     },
+    timezone: {
+      type: String,
+      default: 'UTC'
+    },
     privacy: {
       profilePublic: {
         type: Boolean,
         default: true
       },
       showInLeaderboard: {
+        type: Boolean,
+        default: true
+      },
+      allowFriendRequests: {
+        type: Boolean,
+        default: true
+      },
+      showOnlineStatus: {
+        type: Boolean,
+        default: true
+      },
+      showStats: {
         type: Boolean,
         default: true
       }
@@ -220,6 +275,60 @@ const userSchema = new Schema<IUser>({
         default: 1.0,
         min: 0.1,
         max: 5.0
+      }
+    },
+    productivity: {
+      workingHoursStart: {
+        type: String,
+        default: '09:00'
+      },
+      workingHoursEnd: {
+        type: String,
+        default: '17:00'
+      },
+      workingDays: {
+        type: [Number],
+        default: [1, 2, 3, 4, 5], // Monday to Friday
+        validate: {
+          validator: function(days: number[]) {
+            return days.every(day => day >= 0 && day <= 6);
+          },
+          message: 'Working days must be between 0 (Sunday) and 6 (Saturday)'
+        }
+      },
+      dailyGoal: {
+        tasks: {
+          type: Number,
+          default: 5,
+          min: 0
+        },
+        focusTime: {
+          type: Number,
+          default: 120, // 2 hours in minutes
+          min: 0
+        },
+        xp: {
+          type: Number,
+          default: 200,
+          min: 0
+        }
+      },
+      weeklyGoal: {
+        tasks: {
+          type: Number,
+          default: 25,
+          min: 0
+        },
+        focusTime: {
+          type: Number,
+          default: 600, // 10 hours in minutes
+          min: 0
+        },
+        xp: {
+          type: Number,
+          default: 1000,
+          min: 0
+        }
       }
     }
   },
