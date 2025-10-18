@@ -345,4 +345,14 @@ export class TaskService {
       user.stats.longestStreak = user.streak;
     }
   }
+
+  // Bulk delete tasks
+  static async bulkDeleteTasks(userId: string, taskIds: string[]): Promise<{ deletedCount: number }> {
+    const result = await Task.deleteMany({
+      _id: { $in: taskIds.map(id => new mongoose.Types.ObjectId(id)) },
+      userId: new mongoose.Types.ObjectId(userId)
+    });
+
+    return { deletedCount: result.deletedCount };
+  }
 }

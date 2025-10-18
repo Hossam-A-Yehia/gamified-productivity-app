@@ -98,7 +98,7 @@ class ChallengeService {
   }
 
   async updateChallengeProgress(progressUpdate: ChallengeProgressUpdate): Promise<Challenge> {
-    const response = await apiService.post<Challenge>('/challenges/progress', progressUpdate);
+    const response = await apiService.post<Challenge>(`/challenges/${progressUpdate.challengeId}/progress`, progressUpdate);
     return response.data.data!;
   }
 

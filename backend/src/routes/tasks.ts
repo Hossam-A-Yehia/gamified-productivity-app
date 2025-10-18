@@ -28,4 +28,6 @@ router.patch('/:id/complete', TaskController.completeTask);
 
 router.patch('/:id/status', validate(taskValidationSchemas.updateStatus), TaskController.updateTaskStatus);
 
+router.post('/bulk-delete', TaskController.bulkDeleteTasks);
+
 export default router;

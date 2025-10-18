@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { TaskFilters, TaskService } from '../services/taskService';
 import { AchievementService } from '../services/achievementService';
 import { AuthenticatedRequest } from '../types/express';
@@ -288,6 +288,35 @@ export class TaskController {
       res.status(500).json({
         success: false,
         message: 'Failed to fetch overdue tasks',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  }
+
+  static async bulkDeleteTasks(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      const { taskIds } = req.body;
+
+      if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) {
+        res.status(400).json({
+          success: false,
+          message: 'Task IDs array is required',
+        });
+        return;
+      }
+
+      const result = await TaskService.bulkDeleteTasks(userId, taskIds);
+
+      res.status(200).json({
+        success: true,
+        data: { deletedCount: result.deletedCount },
+        message: `Successfully deleted ${result.deletedCount} tasks`,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to bulk delete tasks',
         error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
