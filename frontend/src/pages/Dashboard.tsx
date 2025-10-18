@@ -1,8 +1,7 @@
 import React, { useState, Suspense, lazy } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES, TASK_STATUS, DASHBOARD_TABS, SORT_ORDER, LOADING_STATES, type DashboardTab } from '../utils/constants';
+import { TASK_STATUS, DASHBOARD_TABS, SORT_ORDER, type DashboardTab } from '../utils/constants';
 import { useTasks, useTaskStats, useOverdueTasks, useCreateTask, useCompleteTask, useUpdateTaskStatus, useDeleteTask, useUpdateTask } from '../hooks/useTasks';
 import { DeleteTaskModal } from '../components/tasks/DeleteTaskModal';
 import { RewardNotification } from '../components/gamification/RewardNotification';
@@ -19,8 +18,7 @@ const TaskManagementSection = lazy(() => import('../components/dashboard/TaskMan
 const TaskForm = lazy(() => import('../components/tasks/TaskForm').then(module => ({ default: module.TaskForm })));
 
 const Dashboard: React.FC = () => {
-  const { user, logout, isLoggingOut } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -53,14 +51,6 @@ const Dashboard: React.FC = () => {
   const deleteTaskMutation = useDeleteTask();
   const updateTaskMutation = useUpdateTask();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate(ROUTES.LOGIN);
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
   const handleCreateTask = async (taskData: CreateTaskRequest) => {
     try {
@@ -196,129 +186,58 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-slate-900 dark:to-indigo-950">
-      <div className="absolute inset-0 opacity-40">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5"></div>
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), 
-                           radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)`
-        }}></div>
-      </div>
-      
-      <header className="relative backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border-b border-white/20 dark:border-gray-700/50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-4 hover:scale-[1.01] transition-transform duration-200">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">🎮</span>
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900"></div>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                  GameTask Pro
-                </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Level up your productivity</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-6">
-              <button
-                onClick={() => navigate(ROUTES.TASKS)}
-                className="cursor-pointer bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
-              >
-                <span>📋</span>
-                <span className="hidden sm:inline">Tasks</span>
-              </button>
-              <button
-                onClick={() => navigate(ROUTES.ACHIEVEMENTS)}
-                className="cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
-              >
-                <span>🏆</span>
-                <span className="hidden sm:inline">Achievements</span>
-              </button>
-              <button
-                onClick={() => navigate(ROUTES.LEADERBOARD)}
-                className="cursor-pointer bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2"
-              >
-                <span>📊</span>
-                <span className="hidden sm:inline">Leaderboard</span>
-              </button>
-              <div className="hidden md:flex items-center space-x-4">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Level {user.level} Player</p>
-                </div>
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="cursor-pointer bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-200 disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                {isLoggingOut ? LOADING_STATES.SIGNING_OUT : LOADING_STATES.SIGN_OUT}
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <Suspense fallback={<LoadingSpinner size="sm" message="Loading welcome section..." />}>
+        <WelcomeBanner
+          userName={user.name}
+          completedTasks={taskStats?.completed || 0}
+          streak={user.streak}
+          onCreateTask={() => setShowTaskForm(true)}
+        />
+      </Suspense>
 
-      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <Suspense fallback={<LoadingSpinner size="sm" message="Loading welcome section..." />}>
-          <WelcomeBanner
-            userName={user.name}
-            completedTasks={taskStats?.completed || 0}
-            streak={user.streak}
-            onCreateTask={() => setShowTaskForm(true)}
-          />
+      <Suspense fallback={<LoadingSpinner size="sm" message="Loading stats..." />}>
+        <UserStatsCards
+          level={user.level}
+          xp={user.xp}
+          coins={user.coins}
+          streak={user.streak}
+        />
+      </Suspense>
+
+      <Suspense fallback={<LoadingSpinner size="sm" message="Loading XP section..." />}>
+        <XPSection currentXP={user.xp} />
+      </Suspense>
+
+      {taskStats && (
+        <Suspense fallback={<LoadingSpinner size="sm" message="Loading task stats..." />}>
+          <TaskStatsGrid taskStats={taskStats} />
         </Suspense>
+      )}
 
-        <Suspense fallback={<LoadingSpinner size="sm" message="Loading stats..." />}>
-          <UserStatsCards
-            level={user.level}
-            xp={user.xp}
-            coins={user.coins}
-            streak={user.streak}
-          />
-        </Suspense>
+      <OverdueTasksAlert overdueTasks={overdueTasks || []} />
 
-        <Suspense fallback={<LoadingSpinner size="sm" message="Loading XP section..." />}>
-          <XPSection currentXP={user.xp} />
-        </Suspense>
-
-        {taskStats && (
-          <Suspense fallback={<LoadingSpinner size="sm" message="Loading task stats..." />}>
-            <TaskStatsGrid taskStats={taskStats} />
-          </Suspense>
-        )}
-
-        <OverdueTasksAlert overdueTasks={overdueTasks || []} />
-
-        <Suspense fallback={<LoadingSpinner size="sm" message="Loading task management..." />}>
-          <TaskManagementSection
-            activeTab={activeTab}
-            tasks={getCurrentTasks()}
-            tasksLoading={tasksLoading}
-            tasksError={tasksError?.message || null}
-            taskStats={taskStats}
-            tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
-            currentPage={getCurrentPagination().page}
-            totalPages={getCurrentPagination().pages}
-            totalItems={getCurrentPagination().total}
-            itemsPerPage={getCurrentPagination().limit}
-            onTabChange={handleTabChange}
-            onPageChange={handlePageChange}
-            onCreateTask={() => setShowTaskForm(true)}
-            onCompleteTask={handleCompleteTask}
-            onEditTask={handleEditTask}
-            onDeleteTask={handleDeleteTask}
-            onStatusChange={handleStatusChange}
-          />
-        </Suspense>
-      </main>
+      <Suspense fallback={<LoadingSpinner size="sm" message="Loading task management..." />}>
+        <TaskManagementSection
+          activeTab={activeTab}
+          tasks={getCurrentTasks()}
+          tasksLoading={tasksLoading}
+          tasksError={tasksError?.message || null}
+          taskStats={taskStats}
+          tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
+          currentPage={getCurrentPagination().page}
+          totalPages={getCurrentPagination().pages}
+          totalItems={getCurrentPagination().total}
+          itemsPerPage={getCurrentPagination().limit}
+          onTabChange={handleTabChange}
+          onPageChange={handlePageChange}
+          onCreateTask={() => setShowTaskForm(true)}
+          onCompleteTask={handleCompleteTask}
+          onEditTask={handleEditTask}
+          onDeleteTask={handleDeleteTask}
+          onStatusChange={handleStatusChange}
+        />
+      </Suspense>
 
       <AnimatePresence>
         {showTaskForm && (

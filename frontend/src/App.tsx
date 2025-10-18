@@ -7,6 +7,7 @@ import { useAuth } from './hooks/useAuth';
 import { ROUTES } from './utils/constants';
 import GoogleOAuthProvider from './components/providers/GoogleOAuthProvider';
 import LoadingSpinner from './components/ui/LoadingSpinner';
+import { Layout } from './components/common/Layout';
 
 const Login = lazy(() => import('./pages/auth/Login/Login'));
 const Register = lazy(() => import('./pages/auth/Register/Register'));
@@ -14,6 +15,7 @@ const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword/ForgotPass
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Tasks = lazy(() => import('./pages/Tasks'));
+const Challenges = lazy(() => import('./pages/Challenges'));
 const Achievements = lazy(() => import('./pages/Achievements'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 
@@ -97,9 +99,11 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.DASHBOARD}
           element={
             <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Dashboard />
-              </Suspense>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Dashboard />
+                </Suspense>
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -107,9 +111,23 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.TASKS}
           element={
             <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Tasks />
-              </Suspense>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Tasks />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CHALLENGES}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Challenges />
+                </Suspense>
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -117,9 +135,11 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.ACHIEVEMENTS}
           element={
             <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Achievements />
-              </Suspense>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Achievements />
+                </Suspense>
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -127,9 +147,11 @@ const AppRoutes: React.FC = () => {
           path={ROUTES.LEADERBOARD}
           element={
             <ProtectedRoute>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Leaderboard />
-              </Suspense>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Leaderboard />
+                </Suspense>
+              </Layout>
             </ProtectedRoute>
           }
         />
