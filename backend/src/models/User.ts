@@ -34,6 +34,17 @@ export interface IUser extends Document {
       profilePublic: boolean;
       showInLeaderboard: boolean;
     };
+    focus?: {
+      defaultPomodoroLength: number;
+      defaultBreakLength: number;
+      defaultLongBreakLength: number;
+      pomodorosUntilLongBreak: number;
+      autoStartBreaks: boolean;
+      autoStartPomodoros: boolean;
+      soundEnabled: boolean;
+      notificationsEnabled: boolean;
+      xpMultiplier: number;
+    };
   };
   stats: {
     totalTasksCompleted: number;
@@ -161,6 +172,54 @@ const userSchema = new Schema<IUser>({
       showInLeaderboard: {
         type: Boolean,
         default: true
+      }
+    },
+    focus: {
+      defaultPomodoroLength: {
+        type: Number,
+        default: 25,
+        min: 1,
+        max: 120
+      },
+      defaultBreakLength: {
+        type: Number,
+        default: 5,
+        min: 1,
+        max: 60
+      },
+      defaultLongBreakLength: {
+        type: Number,
+        default: 15,
+        min: 1,
+        max: 60
+      },
+      pomodorosUntilLongBreak: {
+        type: Number,
+        default: 4,
+        min: 1,
+        max: 10
+      },
+      autoStartBreaks: {
+        type: Boolean,
+        default: false
+      },
+      autoStartPomodoros: {
+        type: Boolean,
+        default: false
+      },
+      soundEnabled: {
+        type: Boolean,
+        default: true
+      },
+      notificationsEnabled: {
+        type: Boolean,
+        default: true
+      },
+      xpMultiplier: {
+        type: Number,
+        default: 1.0,
+        min: 0.1,
+        max: 5.0
       }
     }
   },

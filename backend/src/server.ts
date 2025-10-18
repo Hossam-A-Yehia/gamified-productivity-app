@@ -11,6 +11,7 @@ import taskRoutes from "./routes/tasks";
 import achievementRoutes from "./routes/achievements";
 import leaderboardRoutes from "./routes/leaderboard";
 import challengeRoutes from "./routes/challenges";
+import focusRoutes from "./routes/focus";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 
@@ -44,6 +45,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/achievements", achievementRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/challenges", challengeRoutes);
+app.use("/api/focus", focusRoutes);
 
 app.get("/api/ping", (_, res) => {
   res.json({ 
