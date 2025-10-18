@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, Filter, Trophy, Users, Target, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import {
   useChallengeOperations,
   useFeaturedChallenges,
@@ -12,9 +13,13 @@ import { ChallengeFilters } from '../components/challenges/ChallengeFilters';
 import { ChallengeForm } from '../components/challenges/ChallengeForm';
 import { ChallengeStats } from '../components/challenges/ChallengeStats';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import type {
+import type { 
+  CreateChallengeRequest, 
   ChallengeFilters as ChallengeFiltersType,
-  CreateChallengeRequest
+  ChallengeType,
+  ChallengeCategory,
+  ChallengeDifficulty,
+  ChallengeStatus
 } from '../types/challenge';
 import { toast } from 'sonner';
 
@@ -24,14 +29,15 @@ type SortOrder = 'asc' | 'desc';
 
 interface ChallengeFiltersState {
   search: string;
-  type: string[];
-  category: string[];
-  difficulty: string[];
-  status: string[];
+  type: ChallengeType[];
+  category: ChallengeCategory[];
+  difficulty: ChallengeDifficulty[];
+  status: ChallengeStatus[];
   tags: string[];
 }
 
 const Challenges: React.FC = () => {
+  const navigate = useNavigate();
   const [showChallengeForm, setShowChallengeForm] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('all');
@@ -76,16 +82,25 @@ const Challenges: React.FC = () => {
   const { data: challengeStats } = useChallengeStats();
 
   const displayChallenges = useMemo(() => {
+    let result: any[] = [];
+    
     switch (viewMode) {
       case 'featured':
-        return featuredChallenges || [];
+        result = Array.isArray(featuredChallenges) ? featuredChallenges : [];
+        break;
       case 'participating':
-        return participatingChallenges || [];
+        result = Array.isArray(participatingChallenges) ? participatingChallenges : [];
+        break;
       case 'completed':
-        return participatingChallenges?.filter(c => c.status === 'completed') || [];
+        result = Array.isArray(participatingChallenges) 
+          ? participatingChallenges.filter(c => c.status === 'completed') 
+          : [];
+        break;
       default:
-        return challenges || [];
+        result = Array.isArray(challenges) ? challenges : [];
     }
+    
+    return result;
   }, [viewMode, challenges, featuredChallenges, participatingChallenges]);
 
   const isViewLoading = useMemo(() => {
@@ -124,6 +139,10 @@ const Challenges: React.FC = () => {
     } catch {
       toast.error('Failed to leave challenge');
     }
+  };
+
+  const handleViewChallenge = (challengeId: string) => {
+    navigate(`/challenges/${challengeId}`);
   };
 
   const clearFilters = () => {
@@ -284,6 +303,7 @@ const Challenges: React.FC = () => {
                       challenge={challenge}
                       onJoin={handleJoinChallenge}
                       onLeave={handleLeaveChallenge}
+                      onView={handleViewChallenge}
                       showActions
                     />
                   </motion.div>

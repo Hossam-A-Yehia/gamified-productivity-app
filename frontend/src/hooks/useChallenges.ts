@@ -154,9 +154,29 @@ export const useJoinChallenge = () => {
 
   return useMutation({
     mutationFn: (challengeId: string) => challengeService.joinChallenge(challengeId),
-    onSuccess: (_, challengeId) => {
-      queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.detail(challengeId) });
-      queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.lists() });
+    onSuccess: (updatedChallenge, challengeId) => {
+      
+      // Update the specific challenge in cache if we have the updated data
+      if (updatedChallenge) {
+        queryClient.setQueryData(CHALLENGE_QUERY_KEYS.detail(challengeId), updatedChallenge);
+        
+        // Update challenges in lists cache
+        queryClient.setQueriesData(
+          { queryKey: CHALLENGE_QUERY_KEYS.lists() },
+          (oldData: any) => {
+            if (!oldData?.challenges) return oldData;
+            
+            return {
+              ...oldData,
+              challenges: oldData.challenges.map((challenge: any) =>
+                challenge._id === challengeId ? updatedChallenge : challenge
+              ),
+            };
+          }
+        );
+      }
+      
+      // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.participating() });
       queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.stats() });
       queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.leaderboard(challengeId) });
@@ -173,9 +193,28 @@ export const useLeaveChallenge = () => {
 
   return useMutation({
     mutationFn: (challengeId: string) => challengeService.leaveChallenge(challengeId),
-    onSuccess: (_, challengeId) => {
-      queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.detail(challengeId) });
-      queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.lists() });
+    onSuccess: (updatedChallenge, challengeId) => {
+      // Update the specific challenge in cache if we have the updated data
+      if (updatedChallenge) {
+        queryClient.setQueryData(CHALLENGE_QUERY_KEYS.detail(challengeId), updatedChallenge);
+        
+        // Update challenges in lists cache
+        queryClient.setQueriesData(
+          { queryKey: CHALLENGE_QUERY_KEYS.lists() },
+          (oldData: any) => {
+            if (!oldData?.challenges) return oldData;
+            
+            return {
+              ...oldData,
+              challenges: oldData.challenges.map((challenge: any) =>
+                challenge._id === challengeId ? updatedChallenge : challenge
+              ),
+            };
+          }
+        );
+      }
+      
+      // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.participating() });
       queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.stats() });
       queryClient.invalidateQueries({ queryKey: CHALLENGE_QUERY_KEYS.leaderboard(challengeId) });

@@ -6,7 +6,7 @@ export interface Challenge {
   category: ChallengeCategory;
   difficulty: ChallengeDifficulty;
   requirements: ChallengeRequirement[];
-  rewards: ChallengeReward[];
+  rewards: ChallengeReward[] | BackendChallengeReward; // Support both formats
   startDate: string;
   endDate: string;
   participants: ChallengeParticipant[];
@@ -37,22 +37,19 @@ export type ChallengeDifficulty = 'easy' | 'medium' | 'hard' | 'extreme';
 export type ChallengeStatus = 'upcoming' | 'active' | 'completed' | 'cancelled' | 'draft';
 
 export interface ChallengeRequirement {
+  id: string;
   type: RequirementType;
   target: number;
-  current?: number;
+  current: number;
   description: string;
   unit: string; // 'tasks', 'days', 'hours', 'points', etc.
 }
 
 export type RequirementType = 
-  | 'complete_tasks'
-  | 'maintain_streak'
-  | 'earn_xp'
+  | 'tasks_completed'
+  | 'streak_days'
   | 'focus_time'
-  | 'daily_login'
-  | 'task_category'
-  | 'task_difficulty'
-  | 'consecutive_days';
+  | 'custom';
 
 export interface ChallengeReward {
   type: RewardType;
@@ -69,6 +66,16 @@ export type RewardType =
   | 'theme' 
   | 'title' 
   | 'multiplier';
+
+export interface BackendChallengeReward {
+  xp: number;
+  coins: number;
+  badges?: string[];
+  avatars?: string[];
+  themes?: string[];
+  titles?: string[];
+  multiplier?: number;
+}
 
 export interface ChallengeParticipant {
   userId: string;
@@ -106,14 +113,15 @@ export interface LeaderboardEntry {
   completedAt?: string;
 }
 
+
 export interface CreateChallengeRequest {
   title: string;
   description: string;
   type: ChallengeType;
   category: ChallengeCategory;
   difficulty: ChallengeDifficulty;
-  requirements: Omit<ChallengeRequirement, 'current'>[];
-  rewards: ChallengeReward[];
+  requirements: ChallengeRequirement[];
+  rewards: BackendChallengeReward;
   startDate: string;
   endDate: string;
   maxParticipants?: number;
@@ -164,18 +172,13 @@ export interface ChallengesResponse {
 }
 
 export interface ChallengeStats {
-  totalChallenges: number;
-  activeChallenges: number;
-  completedChallenges: number;
-  participatingChallenges: number;
-  wonChallenges: number;
-  totalRewardsEarned: {
-    xp: number;
-    coins: number;
-    badges: number;
-  };
-  categoryBreakdown: Record<ChallengeCategory, number>;
-  difficultyBreakdown: Record<ChallengeDifficulty, number>;
+  total: number;
+  byType: Record<ChallengeType, number>;
+  byCategory: Record<ChallengeCategory, number>;
+  byDifficulty: Record<ChallengeDifficulty, number>;
+  byStatus: Record<ChallengeStatus, number>;
+  participating: number;
+  completed: number;
 }
 
 export interface JoinChallengeRequest {
@@ -255,14 +258,10 @@ export const CHALLENGE_STATUSES = [
 ] as const;
 
 export const REQUIREMENT_TYPES = [
-  { value: 'complete_tasks', label: 'Complete Tasks', unit: 'tasks', description: 'Complete a specific number of tasks' },
-  { value: 'maintain_streak', label: 'Maintain Streak', unit: 'days', description: 'Maintain a daily streak' },
-  { value: 'earn_xp', label: 'Earn XP', unit: 'XP', description: 'Earn a specific amount of experience points' },
-  { value: 'focus_time', label: 'Focus Time', unit: 'minutes', description: 'Spend time in focus mode' },
-  { value: 'daily_login', label: 'Daily Login', unit: 'days', description: 'Log in for consecutive days' },
-  { value: 'task_category', label: 'Task Category', unit: 'tasks', description: 'Complete tasks in specific categories' },
-  { value: 'task_difficulty', label: 'Task Difficulty', unit: 'tasks', description: 'Complete tasks of specific difficulty' },
-  { value: 'consecutive_days', label: 'Consecutive Days', unit: 'days', description: 'Be active for consecutive days' },
+  { value: 'tasks_completed', label: 'Complete Tasks', unit: 'tasks', description: 'Complete a specific number of tasks' },
+  { value: 'streak_days', label: 'Maintain Streak', unit: 'days', description: 'Maintain a daily streak' },
+  { value: 'focus_time', label: 'Focus Time', unit: 'minutes', description: 'Spend focused time on tasks' },
+  { value: 'custom', label: 'Custom', unit: 'units', description: 'Custom requirement type' },
 ] as const;
 
 export const REWARD_TYPES = [

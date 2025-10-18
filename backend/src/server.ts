@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth";
 import taskRoutes from "./routes/tasks";
 import achievementRoutes from "./routes/achievements";
 import leaderboardRoutes from "./routes/leaderboard";
+import challengeRoutes from "./routes/challenges";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 
@@ -42,6 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/achievements", achievementRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/challenges", challengeRoutes);
 
 app.get("/api/ping", (_, res) => {
   res.json({ 

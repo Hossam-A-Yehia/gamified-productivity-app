@@ -56,7 +56,7 @@ export const ChallengeForm: React.FC<ChallengeFormProps> = ({
     imageUrl: '',
     requirements: [
       {
-        type: 'complete_tasks',
+        type: 'tasks_completed',
         target: 10,
         description: 'Complete 10 tasks',
         unit: 'tasks',
@@ -85,18 +85,27 @@ export const ChallengeForm: React.FC<ChallengeFormProps> = ({
       isPublic: values.isPublic,
       tags: values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
       imageUrl: values.imageUrl || undefined,
-      requirements: values.requirements.map(req => ({
+      requirements: values.requirements.map((req, index) => ({
+        id: `req_${Date.now()}_${index}`,
         type: req.type,
         target: req.target,
+        current: 0,
         description: req.description,
         unit: req.unit,
       })),
-      rewards: values.rewards.map(reward => ({
-        type: reward.type,
-        amount: reward.amount,
-        description: reward.description,
-        rarity: reward.rarity,
-      })),
+      rewards: {
+        xp: values.rewards.reduce((total, reward) => {
+          return reward.type === 'xp' ? total + (reward.amount || 0) : total;
+        }, 0) || 100,
+        coins: values.rewards.reduce((total, reward) => {
+          return reward.type === 'coins' ? total + (reward.amount || 0) : total;
+        }, 0) || 50,
+        badges: values.rewards.filter(r => r.type === 'badge').map(r => r.description),
+        avatars: values.rewards.filter(r => r.type === 'avatar').map(r => r.description),
+        themes: values.rewards.filter(r => r.type === 'theme').map(r => r.description),
+        titles: values.rewards.filter(r => r.type === 'title').map(r => r.description),
+        multiplier: 1,
+      },
     };
 
     await onSubmit(challengeData);

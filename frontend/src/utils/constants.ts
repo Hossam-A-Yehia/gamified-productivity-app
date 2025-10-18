@@ -66,6 +66,7 @@ export const ROUTES = {
   ACHIEVEMENTS: '/achievements',
   LEADERBOARD: '/leaderboard',
   CHALLENGES: '/challenges',
+  CHALLENGE_DETAIL: '/challenges/:id',
   FOCUS: '/focus',
   SETTINGS: '/settings',
 } as const;

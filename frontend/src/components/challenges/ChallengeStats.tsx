@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Target, Users, Star, Coins, Award } from 'lucide-react';
+import { Trophy, Target, Users, Award } from 'lucide-react';
 import type { ChallengeStats as ChallengeStatsType } from '../../types/challenge';
 
 interface ChallengeStatsProps {
@@ -11,61 +11,42 @@ export const ChallengeStats: React.FC<ChallengeStatsProps> = ({ stats }) => {
   const statCards = [
     {
       title: 'Total Challenges',
-      value: stats.totalChallenges,
+      value: stats.total || 0,
       icon: Target,
       color: 'text-blue-600 dark:text-blue-400',
       bgColor: 'bg-blue-100 dark:bg-blue-900/30',
     },
     {
       title: 'Active Challenges',
-      value: stats.activeChallenges,
+      value: stats.byStatus?.active || 0,
       icon: Users,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-100 dark:bg-green-900/30',
     },
     {
       title: 'Participating',
-      value: stats.participatingChallenges,
+      value: stats.participating || 0,
       icon: Trophy,
       color: 'text-purple-600 dark:text-purple-400',
       bgColor: 'bg-purple-100 dark:bg-purple-900/30',
     },
     {
       title: 'Completed',
-      value: stats.completedChallenges,
+      value: stats.completed || 0,
       icon: Award,
       color: 'text-yellow-600 dark:text-yellow-400',
       bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
     },
     {
-      title: 'Won Challenges',
-      value: stats.wonChallenges,
+      title: 'Upcoming',
+      value: stats.byStatus?.upcoming || 0,
       icon: Trophy,
       color: 'text-orange-600 dark:text-orange-400',
       bgColor: 'bg-orange-100 dark:bg-orange-900/30',
     },
   ];
 
-  const rewardStats = [
-    {
-      title: 'Total XP Earned',
-      value: stats.totalRewardsEarned.xp.toLocaleString(),
-      icon: Star,
-      color: 'text-purple-600 dark:text-purple-400',
-    },
-    {
-      title: 'Total Coins Earned',
-      value: stats.totalRewardsEarned.coins.toLocaleString(),
-      icon: Coins,
-      color: 'text-yellow-600 dark:text-yellow-400',
-    },
-    {
-      title: 'Badges Earned',
-      value: stats.totalRewardsEarned.badges.toLocaleString(),
-      icon: Award,
-      color: 'text-blue-600 dark:text-blue-400',
-    },
-  ];
+  // Note: Reward stats not available in current backend implementation
 
   return (
     <div className="space-y-6">
@@ -94,41 +75,14 @@ export const ChallengeStats: React.FC<ChallengeStatsProps> = ({ stats }) => {
           </motion.div>
         ))}
       </div>
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <Trophy className="text-yellow-500" size={20} />
-          Rewards Earned
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {rewardStats.map((reward, index) => (
-            <motion.div
-              key={reward.title}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 + index * 0.1 }}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
-            >
-              <reward.icon className={`w-5 h-5 ${reward.color}`} />
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {reward.title}
-                </p>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {reward.value}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Challenges by Category
           </h3>
           <div className="space-y-3">
-            {Object.entries(stats.categoryBreakdown).map(([category, count]) => {
-              const total = Object.values(stats.categoryBreakdown).reduce((sum, val) => sum + val, 0);
+            {Object.entries(stats.byCategory || {}).map(([category, count]) => {
+              const total = Object.values(stats.byCategory || {}).reduce((sum: number, val: number) => sum + val, 0);
               const percentage = total > 0 ? (count / total) * 100 : 0;
               
               return (
@@ -162,8 +116,8 @@ export const ChallengeStats: React.FC<ChallengeStatsProps> = ({ stats }) => {
             Challenges by Difficulty
           </h3>
           <div className="space-y-3">
-            {Object.entries(stats.difficultyBreakdown).map(([difficulty, count]) => {
-              const total = Object.values(stats.difficultyBreakdown).reduce((sum, val) => sum + val, 0);
+            {Object.entries(stats.byDifficulty || {}).map(([difficulty, count]) => {
+              const total = Object.values(stats.byDifficulty || {}).reduce((sum: number, val: number) => sum + val, 0);
               const percentage = total > 0 ? (count / total) * 100 : 0;
               
               const difficultyColors = {

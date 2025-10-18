@@ -26,9 +26,14 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
   const category = CHALLENGE_CATEGORIES.find(c => c.value === challenge.category);
   const difficulty = CHALLENGE_DIFFICULTIES.find(d => d.value === challenge.difficulty);
   
-  const isParticipating = challenge.participants.some(p => p.userId === user?.id);
-  const userProgress = challenge.participants.find(p => p.userId === user?.id)?.progress.overallProgress || 0;
-  const canJoin = challengeService.canJoinChallenge(challenge);
+  const isParticipating = challenge.participants.some(p => 
+    (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === user?.id
+  );
+  const userProgress = challenge.participants.find(p => 
+    (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === user?.id
+  )?.progress.overallProgress || 0;
+  const canJoin = challengeService.canJoinChallenge(challenge, user?.id);
+  
   const timeRemaining = challengeService.getChallengeTimeRemaining(challenge);
   const rewardValue = challengeService.getChallengeRewardValue(challenge);
 
@@ -74,6 +79,11 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
           {challenge.type === 'seasonal' && (
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
               🎉 Special
+            </span>
+          )}
+          {isParticipating && (
+            <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+              ✓ Joined
             </span>
           )}
         </div>
@@ -211,7 +221,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
                 >
                   View Details
                 </motion.button>
-                {canJoin && (
+                {canJoin && !isParticipating && (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -219,6 +229,16 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
                     className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors text-sm font-medium"
                   >
                     Join
+                  </motion.button>
+                )}
+                {isParticipating && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => onLeave?.(challenge._id)}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium"
+                  >
+                    Leave
                   </motion.button>
                 )}
               </>

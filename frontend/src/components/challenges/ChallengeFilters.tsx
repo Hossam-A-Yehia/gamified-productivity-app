@@ -1,14 +1,25 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { X, Tag } from 'lucide-react';
-import { CHALLENGE_TYPES, CHALLENGE_CATEGORIES, CHALLENGE_DIFFICULTIES, CHALLENGE_STATUSES } from '../../types/challenge';
+import { 
+  CHALLENGE_TYPES, 
+  CHALLENGE_CATEGORIES, 
+  CHALLENGE_DIFFICULTIES, 
+  CHALLENGE_STATUSES
+} from '../../types/challenge';
+import type {
+  ChallengeType,
+  ChallengeCategory,
+  ChallengeDifficulty,
+  ChallengeStatus
+} from '../../types/challenge';
 
 interface ChallengeFiltersState {
   search: string;
-  type: string[];
-  category: string[];
-  difficulty: string[];
-  status: string[];
+  type: ChallengeType[];
+  category: ChallengeCategory[];
+  difficulty: ChallengeDifficulty[];
+  status: ChallengeStatus[];
   tags: string[];
 }
 
@@ -28,9 +39,9 @@ export const ChallengeFilters: React.FC<ChallengeFiltersProps> = ({
     value: string,
     checked: boolean
   ) => {
-    const currentValues = filters[field] as string[];
+    const currentValues = filters[field];
     const newValues = checked
-      ? [...currentValues, value]
+      ? [...currentValues, value as any]
       : currentValues.filter(v => v !== value);
     
     onFiltersChange({

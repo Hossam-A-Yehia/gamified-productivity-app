@@ -16,6 +16,7 @@ const ResetPassword = lazy(() => import('./pages/auth/ResetPassword/ResetPasswor
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Tasks = lazy(() => import('./pages/Tasks'));
 const Challenges = lazy(() => import('./pages/Challenges'));
+const ChallengeDetail = lazy(() => import('./pages/ChallengeDetail'));
 const Achievements = lazy(() => import('./pages/Achievements'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 
@@ -126,6 +127,18 @@ const AppRoutes: React.FC = () => {
               <Layout>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Challenges />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CHALLENGE_DETAIL}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ChallengeDetail />
                 </Suspense>
               </Layout>
             </ProtectedRoute>
