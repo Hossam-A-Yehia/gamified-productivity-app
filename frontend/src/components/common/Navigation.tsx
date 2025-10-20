@@ -8,6 +8,7 @@ import {
   Users, 
   Target, 
   Timer,
+  User,
   Settings, 
   LogOut, 
   Menu, 
@@ -163,6 +164,16 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => handleNavigation(ROUTES.PROFILE)}
+                className="group flex w-full items-center gap-x-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
+              >
+                <User className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                <span>Profile</span>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleNavigation(ROUTES.SETTINGS)}
                 className="group flex w-full items-center gap-x-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all duration-200"
               >
@@ -290,6 +301,15 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
               </nav>
 
               <div className="absolute bottom-6 left-6 right-6 space-y-2">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleNavigation(ROUTES.PROFILE)}
+                  className="group flex w-full items-center gap-x-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <User className="h-5 w-5 shrink-0 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                  <span>Profile</span>
+                </motion.button>
+                
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleNavigation(ROUTES.SETTINGS)}

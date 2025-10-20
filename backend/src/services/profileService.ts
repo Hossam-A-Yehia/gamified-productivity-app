@@ -1,7 +1,7 @@
 import User, { IUser } from '../models/User';
 import { Task } from '../models/Task';
 import { FocusSession } from '../models/FocusSession';
-import { Challenge } from '../models/Challenge';
+import { ChallengeModel } from '../models/Challenge';
 import mongoose from 'mongoose';
 import {
   UserProfile,
@@ -120,16 +120,16 @@ export class ProfileService {
 
     // Get additional statistics from other collections
     const [tasks, focusSessions, challenges] = await Promise.all([
-      Task.find({ userId: userObjectId }).lean(),
-      FocusSession.find({ userId: userObjectId }).lean(),
-      Challenge.find({ 'participants.userId': userObjectId }).lean()
+      Task.find({ userId: userObjectId }).lean() || [],
+      FocusSession.find({ userId: userObjectId }).lean() || [],
+      ChallengeModel.find({ 'participants.userId': userObjectId }).lean() || []
     ]);
 
-    const completedTasks = tasks.filter(task => task.status === 'completed');
-    const completedFocusSessions = focusSessions.filter(session => session.completed);
-    const completedChallenges = challenges.filter(challenge => 
-      challenge.participants.some(p => 
-        p.userId.toString() === userId && p.progress >= 100
+    const completedTasks = (tasks || []).filter((task: any) => task.status === 'completed');
+    const completedFocusSessions = (focusSessions || []).filter((session: any) => session.completed);
+    const completedChallenges = (challenges || []).filter((challenge: any) => 
+      challenge.participants && challenge.participants.some((p: any) => 
+        p.userId.toString() === userId && p.overallProgress >= 100
       )
     );
 
@@ -142,39 +142,39 @@ export class ProfileService {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekStart = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
 
-    const todayTasks = completedTasks.filter(task => 
+    const todayTasks = completedTasks.filter((task: any) => 
       new Date(task.completedAt || task.updatedAt) >= today
     ).length;
 
     const todayFocusTime = completedFocusSessions
-      .filter(session => new Date(session.startTime) >= today)
-      .reduce((sum, session) => sum + session.actualDuration, 0);
+      .filter((session: any) => new Date(session.startTime) >= today)
+      .reduce((sum: number, session: any) => sum + (session.actualDuration || 0), 0);
 
     const todayXP = completedTasks
-      .filter(task => new Date(task.completedAt || task.updatedAt) >= today)
-      .reduce((sum, task) => sum + (task.xpReward || 0), 0) +
+      .filter((task: any) => new Date(task.completedAt || task.updatedAt) >= today)
+      .reduce((sum: number, task: any) => sum + (task.xpReward || task.xp || 0), 0) +
       completedFocusSessions
-        .filter(session => new Date(session.startTime) >= today)
-        .reduce((sum, session) => sum + session.xpEarned, 0);
+        .filter((session: any) => new Date(session.startTime) >= today)
+        .reduce((sum: number, session: any) => sum + (session.xpEarned || 0), 0);
 
-    const weekTasks = completedTasks.filter(task => 
+    const weekTasks = completedTasks.filter((task: any) => 
       new Date(task.completedAt || task.updatedAt) >= weekStart
     ).length;
 
     const weekFocusTime = completedFocusSessions
-      .filter(session => new Date(session.startTime) >= weekStart)
-      .reduce((sum, session) => sum + session.actualDuration, 0);
+      .filter((session: any) => new Date(session.startTime) >= weekStart)
+      .reduce((sum: number, session: any) => sum + (session.actualDuration || 0), 0);
 
     const weekXP = completedTasks
-      .filter(task => new Date(task.completedAt || task.updatedAt) >= weekStart)
-      .reduce((sum, task) => sum + (task.xpReward || 0), 0) +
+      .filter((task: any) => new Date(task.completedAt || task.updatedAt) >= weekStart)
+      .reduce((sum: number, task: any) => sum + (task.xpReward || task.xp || 0), 0) +
       completedFocusSessions
-        .filter(session => new Date(session.startTime) >= weekStart)
-        .reduce((sum, session) => sum + session.xpEarned, 0);
+        .filter((session: any) => new Date(session.startTime) >= weekStart)
+        .reduce((sum: number, session: any) => sum + (session.xpEarned || 0), 0);
 
     // Calculate average productivity
     const avgProductivity = completedFocusSessions.length > 0
-      ? completedFocusSessions.reduce((sum, session) => sum + session.productivity, 0) / completedFocusSessions.length
+      ? completedFocusSessions.reduce((sum: number, session: any) => sum + (session.productivity || 0), 0) / completedFocusSessions.length
       : 0;
 
     return {
@@ -256,7 +256,7 @@ export class ProfileService {
     // Build sort
     const sortBy = filters.sortBy || 'createdAt';
     const sortOrder = filters.sortOrder === 'asc' ? 1 : -1;
-    const sort = { [sortBy]: sortOrder };
+    const sort: any = { [sortBy]: sortOrder };
 
     const [users, total] = await Promise.all([
       User.find(query)
