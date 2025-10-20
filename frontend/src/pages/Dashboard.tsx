@@ -7,6 +7,8 @@ import { DeleteTaskModal } from '../components/tasks/DeleteTaskModal';
 import { RewardNotification } from '../components/gamification/RewardNotification';
 import { OverdueTasksAlert } from '../components/dashboard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import LiveStatsCounter from '../components/gamification/LiveStatsCounter';
+import LiveLeaderboard from '../components/leaderboard/LiveLeaderboard';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
 
 const WelcomeBanner = lazy(() => import('../components/dashboard/WelcomeBanner').then(module => ({ default: module.WelcomeBanner })));
@@ -26,7 +28,7 @@ const Dashboard: React.FC = () => {
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [activeTab, setActiveTab] = useState<DashboardTab>(DASHBOARD_TABS.OVERVIEW);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(3); 
+  const [itemsPerPage] = useState(2); 
   const [rewardNotification, setRewardNotification] = useState<{
     isVisible: boolean;
     rewards: { xp: number; coins: number; levelUp?: boolean; newLevel?: number };
@@ -196,6 +198,9 @@ const Dashboard: React.FC = () => {
         />
       </Suspense>
 
+      {/* Live Stats Counter with Real-time Updates */}
+      <LiveStatsCounter />
+
       <Suspense fallback={<LoadingSpinner size="sm" message="Loading stats..." />}>
         <UserStatsCards
           level={user.level}
@@ -217,27 +222,40 @@ const Dashboard: React.FC = () => {
 
       <OverdueTasksAlert overdueTasks={overdueTasks || []} />
 
-      <Suspense fallback={<LoadingSpinner size="sm" message="Loading task management..." />}>
-        <TaskManagementSection
-          activeTab={activeTab}
-          tasks={getCurrentTasks()}
-          tasksLoading={tasksLoading}
-          tasksError={tasksError?.message || null}
-          taskStats={taskStats}
-          tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
-          currentPage={getCurrentPagination().page}
-          totalPages={getCurrentPagination().pages}
-          totalItems={getCurrentPagination().total}
-          itemsPerPage={getCurrentPagination().limit}
-          onTabChange={handleTabChange}
-          onPageChange={handlePageChange}
-          onCreateTask={() => setShowTaskForm(true)}
-          onCompleteTask={handleCompleteTask}
-          onEditTask={handleEditTask}
-          onDeleteTask={handleDeleteTask}
-          onStatusChange={handleStatusChange}
-        />
-      </Suspense>
+      {/* Live Leaderboard Widget */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="lg:col-span-2">
+          <Suspense fallback={<LoadingSpinner size="sm" message="Loading task management..." />}>
+            <TaskManagementSection
+              activeTab={activeTab}
+              tasks={getCurrentTasks()}
+              tasksLoading={tasksLoading}
+              tasksError={tasksError?.message || null}
+              taskStats={taskStats}
+              tasksCount={Array.isArray(tasksData) ? tasksData.length : (tasksData?.pagination?.total || 0)}
+              currentPage={getCurrentPagination().page}
+              totalPages={getCurrentPagination().pages}
+              totalItems={getCurrentPagination().total}
+              itemsPerPage={getCurrentPagination().limit}
+              onTabChange={handleTabChange}
+              onPageChange={handlePageChange}
+              onCreateTask={() => setShowTaskForm(true)}
+              onCompleteTask={handleCompleteTask}
+              onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
+              onStatusChange={handleStatusChange}
+            />
+          </Suspense>
+        </div>
+        
+        {/* Live Leaderboard Sidebar */}
+        <div className="lg:col-span-1">
+          <LiveLeaderboard 
+            initialData={[]}
+            currentUserId={user.id}
+          />
+        </div>
+      </div>
 
       <AnimatePresence>
         {showTaskForm && (

@@ -1,5 +1,6 @@
 import User from '../models/User';
 import { startOfWeek, startOfMonth, endOfWeek, endOfMonth } from 'date-fns';
+import { socketService } from './socketService';
 
 interface LeaderboardEntry {
   _id: string;
@@ -394,5 +395,59 @@ export class LeaderboardService {
         pages: Math.ceil(total / limit),
       },
     };
+  }
+
+  // Method to broadcast leaderboard updates
+  static async broadcastLeaderboardUpdate(type: 'global' | 'weekly' | 'monthly' = 'global') {
+    try {
+      let leaderboardData;
+      
+      switch (type) {
+        case 'weekly':
+          leaderboardData = await this.getWeeklyLeaderboard({ limit: 10 });
+          break;
+        case 'monthly':
+          leaderboardData = await this.getMonthlyLeaderboard({ limit: 10 });
+          break;
+        default:
+          leaderboardData = await this.getGlobalLeaderboard({ limit: 10 });
+      }
+
+      // Emit leaderboard update to all connected clients
+      socketService.emitLeaderboardUpdate({
+        type,
+        leaderboard: leaderboardData.leaderboard,
+        timestamp: new Date()
+      });
+
+      console.log(`Broadcasted ${type} leaderboard update to all clients`);
+    } catch (error) {
+      console.error('Error broadcasting leaderboard update:', error);
+    }
+  }
+
+  // Method to check and notify rank changes
+  static async checkRankChanges(userId: string, oldXP: number, newXP: number) {
+    try {
+      // Get user's old rank (approximate based on XP)
+      const usersAboveOldXP = await User.countDocuments({ xp: { $gt: oldXP } });
+      const oldRank = usersAboveOldXP + 1;
+
+      // Get user's new rank
+      const usersAboveNewXP = await User.countDocuments({ xp: { $gt: newXP } });
+      const newRank = usersAboveNewXP + 1;
+
+      // If rank changed, emit event
+      if (oldRank !== newRank) {
+        socketService.emitUserRankChange(userId, oldRank, newRank);
+        
+        // If significant rank improvement, broadcast leaderboard update
+        if (oldRank - newRank >= 5 || newRank <= 10) {
+          await this.broadcastLeaderboardUpdate();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking rank changes:', error);
+    }
   }
 }

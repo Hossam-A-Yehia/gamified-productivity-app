@@ -2,10 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
-  MapPin, 
   Calendar, 
-  Trophy, 
-  Users, 
   Zap,
   Crown,
   Star
@@ -48,7 +45,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
         
         {/* Level badge */}
         <div className="absolute top-4 right-4">
-          <div className="flex items-center gap-1 bg-white bg-opacity-20 backdrop-blur-sm rounded-full px-3 py-1">
+          <div className="flex items-center gap-1 bg-green-800 bg-opacity-20 backdrop-blur-sm rounded-full px-3 py-1">
             <Crown className="w-4 h-4 text-yellow-300" />
             <span className="text-white font-semibold text-sm">Level {profile.level}</span>
           </div>

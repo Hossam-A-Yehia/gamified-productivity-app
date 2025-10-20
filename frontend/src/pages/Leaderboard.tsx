@@ -11,6 +11,7 @@ import {
   useUserRank,
 } from '../hooks/useLeaderboard';
 import { LeaderboardTable } from '../components/leaderboard/LeaderboardTable';
+import LiveLeaderboard from '../components/leaderboard/LiveLeaderboard';
 import { ROUTES } from '../utils/constants';
 import type { LeaderboardType, LeaderboardCategory } from '../types/leaderboard';
 
@@ -294,11 +295,18 @@ export default function Leaderboard() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <LeaderboardTable
-                    entries={currentData?.leaderboard || []}
-                    currentUserId={user?.id}
-                    showRank={true}
-                  />
+                  {/* Live Leaderboard with Real-time Updates */}
+                  {currentData && (
+                    <LiveLeaderboard 
+                      initialData={currentData.leaderboard.map(entry => ({
+                        ...entry,
+                        userId: entry._id,
+                        rank: entry.rank || 0
+                      }))}
+                      currentUserId={user?.id}
+                    />
+                  )}
+
 
                   {currentData?.currentUser && !currentData.leaderboard.find(e => e._id === user?.id) && (
                     <div className="mt-6 pt-6 border-t-2 border-gray-200 dark:border-gray-700">

@@ -16,8 +16,8 @@ export const connectMongoDB = async (): Promise<void> => {
       return;
     }
 
-    // Configure mongoose for serverless
-    mongoose.set('bufferCommands', false);
+    // Configure mongoose for serverless (but allow buffering during connection)
+    mongoose.set('bufferCommands', true);
 
     const conn = await mongoose.connect(MONGO_URI, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s

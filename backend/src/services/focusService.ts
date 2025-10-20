@@ -10,6 +10,7 @@ import {
   FocusSettings,
   UpdateFocusSettingsRequest
 } from '../types/focus';
+import { socketService } from './socketService';
 
 export class FocusService {
   // Create a new focus session
@@ -177,15 +178,29 @@ export class FocusService {
     await session.save();
 
     // Update user XP
-    await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       userId,
       { 
         $inc: { 
           xp: xpEarned,
           'stats.totalFocusTime': session.actualDuration
         }
-      }
+      },
+      { new: true }
     );
+
+    // Emit real-time events for focus session completion
+    const rewards = { xp: xpEarned, focusTime: session.actualDuration };
+    socketService.emitFocusSessionCompleted(userId, session, rewards);
+    
+    // Emit XP gained event
+    if (user) {
+      socketService.emitXPGained(userId, {
+        amount: xpEarned,
+        source: 'focus_session',
+        total: user.xp
+      });
+    }
 
     return { session, xpEarned };
   }

@@ -5,7 +5,9 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 import express from "express";
 import cors from "cors";
+import { createServer } from "http";
 import { connectMongoDB } from "./config/database";
+import { initializeSocket } from "./config/socket";
 import authRoutes from "./routes/auth";
 import taskRoutes from "./routes/tasks";
 import achievementRoutes from "./routes/achievements";
@@ -17,7 +19,18 @@ import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 5000;
+
+// Ensure database connection before initializing Socket.io
+let socketManager: any;
+connectMongoDB().then(() => {
+  // Initialize Socket.io after database connection
+  socketManager = initializeSocket(server);
+  console.log('🔌 Socket.io initialized for', process.env.NODE_ENV || 'development', 'environment');
+}).catch((error) => {
+  console.error('Failed to connect to database before Socket.io initialization:', error);
+});
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -73,8 +86,9 @@ app.use(errorHandler);
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🔌 Socket.io ready for connections`);
   });
 }
 

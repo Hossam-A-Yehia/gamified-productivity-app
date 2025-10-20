@@ -5,6 +5,7 @@ import { ArrowLeft, Calendar, Users, Trophy, Target } from 'lucide-react';
 import { useChallenge } from '../hooks/useChallenges';
 import { CHALLENGE_DIFFICULTIES } from '../types/challenge';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import LiveChallengeProgress from '../components/challenges/LiveChallengeProgress';
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -129,11 +130,25 @@ const ChallengeDetail: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Requirements */}
+      {/* Live Challenge Progress */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
+        className="mb-8"
+      >
+        <LiveChallengeProgress 
+          challengeId={challenge._id}
+          initialProgress={0}
+          participants={challenge.participants.length}
+        />
+      </motion.div>
+
+      {/* Requirements */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
         className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-8"
       >
         <div className="flex items-center gap-3 mb-4">

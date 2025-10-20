@@ -8,6 +8,8 @@ import { ROUTES } from './utils/constants';
 import GoogleOAuthProvider from './components/providers/GoogleOAuthProvider';
 import LoadingSpinner from './components/ui/LoadingSpinner';
 import { Layout } from './components/common/Layout';
+import RealtimeNotifications from './components/common/RealtimeNotifications';
+import TaskCompletionCelebration from './components/tasks/TaskCompletionCelebration';
 
 const Login = lazy(() => import('./pages/auth/Login/Login'));
 const Register = lazy(() => import('./pages/auth/Register/Register'));
@@ -224,6 +226,8 @@ const App: React.FC = () => {
         <Router>
           <div className="App">
             <AppRoutes />
+            <RealtimeNotifications />
+            <TaskCompletionCelebration />
             <Toaster 
               position="top-center"
               expand={true}

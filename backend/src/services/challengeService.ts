@@ -14,6 +14,7 @@ import {
   LeaderboardEntry,
   ChallengeParticipant
 } from '../types/challenge';
+import { socketService } from './socketService';
 
 export class ChallengeService {
   // Create a new challenge
@@ -302,6 +303,12 @@ export class ChallengeService {
       await challenge.save();
       await challenge.populate('participants.userId', 'name email');
       
+      // Emit real-time event for challenge joined
+      socketService.emitChallengeJoined(challengeId, userId, {
+        participant,
+        totalParticipants: challenge.participants.length
+      });
+      
       return challenge;
     } catch (error: any) {
       console.error('ChallengeService.joinChallenge error:', error);
@@ -402,10 +409,20 @@ export class ChallengeService {
 
       if (allCompleted && !participant.completedAt) {
         participant.completedAt = new Date();
+        
+        // Emit challenge completion event
+        socketService.emitChallengeCompletion(challengeId, userId, {
+          completedAt: participant.completedAt,
+          finalScore: participant.score,
+          rank: (challenge as any).leaderboard?.findIndex((entry: any) => entry.userId.toString() === userId) + 1 || 0
+        });
       }
 
       (challenge as any).updateLeaderboard();
       await challenge.save();
+      
+      // Emit progress update event
+      socketService.emitChallengeProgress(challengeId, userId, participant.overallProgress);
       
       return challenge;
     } catch (error: any) {

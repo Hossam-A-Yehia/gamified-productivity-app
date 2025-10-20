@@ -2,6 +2,8 @@ import { Task, ITask } from '../models/Task';
 import User from '../models/User';
 import mongoose from 'mongoose';
 import { TASK_STATUS, SORT_ORDER, DEFAULTS, MONGO_OPERATORS, REGEX_OPTIONS, ERROR_MESSAGES } from '../constants';
+import { socketService } from './socketService';
+import { LeaderboardService } from './leaderboardService';
 
 export interface TaskFilters {
   status?: string;
@@ -42,6 +44,10 @@ export class TaskService {
     });
 
     await task.save();
+    
+    // Emit real-time event for task creation
+    socketService.emitTaskCreated(userId, task);
+    
     return task;
   }
 
@@ -203,6 +209,7 @@ export class TaskService {
     }
 
     const oldLevel = user.level;
+    const oldXP = user.xp;
     user.xp += xpAwarded;
     user.coins += coinsAwarded;
     user.stats.totalTasksCompleted += 1;
@@ -216,6 +223,36 @@ export class TaskService {
     await this.updateUserStreak(user);
 
     await user.save();
+
+    // Emit real-time events for task completion
+    const rewards = { xp: xpAwarded, coins: coinsAwarded };
+    socketService.emitTaskCompleted(userId, task, rewards);
+    
+    // Emit XP and coins gained events
+    socketService.emitXPGained(userId, {
+      amount: xpAwarded,
+      source: 'task_completion',
+      total: user.xp
+    });
+    
+    socketService.emitCoinsEarned(userId, {
+      amount: coinsAwarded,
+      source: 'task_completion',
+      total: user.coins
+    });
+    
+    // Emit level up event if applicable
+    if (levelUp) {
+      socketService.emitLevelUp(userId, {
+        oldLevel,
+        newLevel,
+        xp: user.xp,
+        coinsBonus: newLevel * 10 // Bonus coins for leveling up
+      });
+    }
+
+    // Check for rank changes and broadcast leaderboard updates
+    LeaderboardService.checkRankChanges(userId, oldXP, user.xp);
 
     return {
       task,
