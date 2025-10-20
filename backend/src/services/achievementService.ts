@@ -91,7 +91,7 @@ export class AchievementService {
       {
         name: 'Rookie Achiever',
         description: 'Complete your first 10 tasks',
-        iconUrl: '/icons/achievements/rookie.png',
+        iconUrl: 'target',
         category: 'productivity',
         rarity: 'common',
         criteria: {
@@ -104,7 +104,7 @@ export class AchievementService {
       {
         name: 'Task Master',
         description: 'Complete 50 tasks',
-        iconUrl: '/icons/achievements/task-master.png',
+        iconUrl: 'check-circle-2',
         category: 'productivity',
         rarity: 'rare',
         criteria: {
@@ -117,7 +117,7 @@ export class AchievementService {
       {
         name: 'Century Club',
         description: 'Complete 100 tasks',
-        iconUrl: '/icons/achievements/century.png',
+        iconUrl: 'trophy',
         category: 'productivity',
         rarity: 'epic',
         criteria: {
@@ -130,7 +130,7 @@ export class AchievementService {
       {
         name: 'Consistency Hero',
         description: 'Maintain a 7-day streak',
-        iconUrl: '/icons/achievements/consistency.png',
+        iconUrl: 'flame',
         category: 'consistency',
         rarity: 'rare',
         criteria: {
@@ -143,7 +143,7 @@ export class AchievementService {
       {
         name: 'Streak Legend',
         description: 'Maintain a 30-day streak',
-        iconUrl: '/icons/achievements/legend.png',
+        iconUrl: 'crown',
         category: 'consistency',
         rarity: 'legendary',
         criteria: {
@@ -156,7 +156,7 @@ export class AchievementService {
       {
         name: 'Early Bird',
         description: 'Complete a task before 8 AM',
-        iconUrl: '/icons/achievements/early-bird.png',
+        iconUrl: 'sunrise',
         category: 'special',
         rarity: 'epic',
         criteria: {
@@ -169,7 +169,7 @@ export class AchievementService {
       {
         name: 'Night Owl',
         description: 'Complete a task after 10 PM',
-        iconUrl: '/icons/achievements/night-owl.png',
+        iconUrl: 'moon',
         category: 'special',
         rarity: 'epic',
         criteria: {
@@ -182,7 +182,7 @@ export class AchievementService {
       {
         name: 'Work Warrior',
         description: 'Complete 25 work tasks',
-        iconUrl: '/icons/achievements/work-warrior.png',
+        iconUrl: 'briefcase',
         category: 'productivity',
         rarity: 'rare',
         criteria: {
@@ -196,7 +196,7 @@ export class AchievementService {
       {
         name: 'Health Hero',
         description: 'Complete 25 health tasks',
-        iconUrl: '/icons/achievements/health-hero.png',
+        iconUrl: 'heart',
         category: 'productivity',
         rarity: 'rare',
         criteria: {
@@ -210,7 +210,7 @@ export class AchievementService {
       {
         name: 'Learning Legend',
         description: 'Complete 25 learning tasks',
-        iconUrl: '/icons/achievements/learning-legend.png',
+        iconUrl: 'graduation-cap',
         category: 'productivity',
         rarity: 'epic',
         criteria: {

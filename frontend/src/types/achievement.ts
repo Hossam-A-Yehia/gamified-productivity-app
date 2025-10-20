@@ -44,3 +44,61 @@ export interface CheckAchievementsResponse {
   newAchievements: string[];
   count: number;
 }
+
+export interface AchievementProgressHistory {
+  date: string;
+  value: number;
+  action: string;
+}
+
+export interface DetailedAchievementProgress {
+  achievement: Achievement;
+  progress: number;
+  target: number;
+  isUnlocked: boolean;
+  unlockedAt?: string;
+  progressPercentage: number;
+  progressHistory: AchievementProgressHistory[];
+}
+
+export interface AchievementStats {
+  total: number;
+  unlocked: number;
+  locked: number;
+  byCategory: {
+    consistency: number;
+    productivity: number;
+    social: number;
+    special: number;
+  };
+  byRarity: {
+    common: number;
+    rare: number;
+    epic: number;
+    legendary: number;
+  };
+  unlockedByCategory: {
+    consistency: number;
+    productivity: number;
+    social: number;
+    special: number;
+  };
+  completionPercentage: number;
+}
+
+export interface AchievementUnlockNotification {
+  achievement: {
+    id: string;
+    name: string;
+    description: string;
+    iconUrl: string;
+    category: AchievementCategory;
+    rarity: AchievementRarity;
+    rewards: AchievementRewards;
+  };
+  user: {
+    level: number;
+    xp: number;
+    coins: number;
+  };
+}

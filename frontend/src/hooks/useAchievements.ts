@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { achievementService } from '../services/achievementService';
 import { toast } from 'sonner';
+import type { AchievementCategory } from '../types/achievement';
 
 export const useAchievements = () => {
   return useQuery({
@@ -64,5 +65,30 @@ export const useInitializeAchievements = () => {
     onError: () => {
       toast.error('Failed to initialize achievements');
     },
+  });
+};
+
+export const useUserAchievementProgress = () => {
+  return useQuery({
+    queryKey: ['achievements', 'user', 'progress'],
+    queryFn: achievementService.getUserAchievementProgress,
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
+export const useAchievementStats = () => {
+  return useQuery({
+    queryKey: ['achievements', 'user', 'stats'],
+    queryFn: achievementService.getAchievementStats,
+    staleTime: 2 * 60 * 1000,
+  });
+};
+
+export const useAchievementsByCategory = (category: AchievementCategory) => {
+  return useQuery({
+    queryKey: ['achievements', 'category', category],
+    queryFn: () => achievementService.getAchievementsByCategory(category),
+    enabled: !!category,
+    staleTime: 2 * 60 * 1000,
   });
 };

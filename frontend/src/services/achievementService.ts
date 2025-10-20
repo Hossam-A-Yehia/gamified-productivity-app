@@ -1,5 +1,13 @@
 import { apiService } from './api';
-import type { Achievement, UserAchievements, AchievementProgress, CheckAchievementsResponse } from '../types/achievement';
+import type { 
+  Achievement, 
+  UserAchievements, 
+  AchievementProgress, 
+  CheckAchievementsResponse,
+  DetailedAchievementProgress,
+  AchievementStats,
+  AchievementCategory
+} from '../types/achievement';
 
 export const achievementService = {
   async getAllAchievements(): Promise<Achievement[]> {
@@ -29,5 +37,26 @@ export const achievementService = {
 
   async initializeAchievements(): Promise<void> {
     await apiService.post('/achievements/initialize');
+  },
+
+  async getUserAchievementProgress(): Promise<DetailedAchievementProgress[]> {
+    const response = await apiService.get<DetailedAchievementProgress[]>('/achievements/user/progress');
+    return response.data.data!;
+  },
+
+  async getAchievementStats(): Promise<AchievementStats> {
+    const response = await apiService.get<AchievementStats>('/achievements/user/stats');
+    return response.data.data!;
+  },
+
+  async getAchievementsByCategory(category: AchievementCategory): Promise<{
+    achievements: Achievement[];
+    progress: DetailedAchievementProgress[];
+  }> {
+    const response = await apiService.get<{
+      achievements: Achievement[];
+      progress: DetailedAchievementProgress[];
+    }>(`/achievements/category/${category}`);
+    return response.data.data!;
   }
 };
