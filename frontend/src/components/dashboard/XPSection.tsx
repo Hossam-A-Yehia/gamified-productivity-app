@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { XPBar } from '../gamification/XPBar';
+import { EnhancedProgressBar } from '../ui/EnhancedProgressBar';
 
 interface XPSectionProps {
   currentXP: number;
@@ -61,16 +61,17 @@ export const XPSection: React.FC<XPSectionProps> = ({ currentXP }) => {
         </div>
 
         <div className="relative mb-6">
-          <XPBar currentXP={currentXP} />
-          <motion.div
-            className="absolute -top-1 text-center font-bold text-white bg-gradient-to-r from-sky-400 to-cyan-300 rounded-full px-3 py-1 text-xs shadow-lg"
-            style={{ left: `${progress}%`, transform: 'translateX(-50%)' }}
-            initial={{ opacity: 0, scale: 0.5, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: 0.8, type: 'spring' }}
-          >
-            {Math.floor(progress)}%
-          </motion.div>
+          <EnhancedProgressBar
+            value={currentLevelXP}
+            max={levelXP}
+            variant="gradient"
+            showLabel={true}
+            label="XP Progress"
+            animated={true}
+            striped={true}
+            glow={true}
+            size="lg"
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-white">

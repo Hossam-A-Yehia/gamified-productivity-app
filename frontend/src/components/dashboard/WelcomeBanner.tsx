@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { EnhancedButton } from '../ui/EnhancedButton';
+import { Plus } from 'lucide-react';
 
 interface WelcomeBannerProps {
   userName: string;
@@ -175,20 +177,15 @@ export const WelcomeBanner: React.FC<WelcomeBannerProps> = ({
           transition={{ delay: 1.3 }}
           className="flex flex-wrap gap-4 items-center"
         >
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <EnhancedButton
             onClick={onCreateTask}
-            className="cursor-pointer group relative bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-3 rounded-xl font-bold text-base shadow-lg border border-white/30 transition-all duration-200 overflow-hidden"
+            variant="primary"
+            size="lg"
+            icon={<Plus className="w-5 h-5" />}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
           >
-            <span className="relative flex items-center space-x-3">
-              <span>✨</span>
-              <span>Create New Task</span>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                →
-              </span>
-            </span>
-          </motion.button>
+            Create Task
+          </EnhancedButton>
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}

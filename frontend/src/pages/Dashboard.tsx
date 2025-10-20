@@ -9,6 +9,9 @@ import { OverdueTasksAlert } from '../components/dashboard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import LiveStatsCounter from '../components/gamification/LiveStatsCounter';
 import LiveLeaderboard from '../components/leaderboard/LiveLeaderboard';
+import { PageTransition } from '../components/ui/PageTransition';
+import { MobileContainer } from '../components/ui/MobileOptimized';
+import { StatsCardSkeleton, TaskCardSkeleton } from '../components/ui/SkeletonLoader';
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from '../types/task';
 
 const WelcomeBanner = lazy(() => import('../components/dashboard/WelcomeBanner').then(module => ({ default: module.WelcomeBanner })));
@@ -188,7 +191,8 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <PageTransition>
+      <MobileContainer className="space-y-8">
       <Suspense fallback={<LoadingSpinner size="sm" message="Loading welcome section..." />}>
         <WelcomeBanner
           userName={user.name}
@@ -201,7 +205,14 @@ const Dashboard: React.FC = () => {
       {/* Live Stats Counter with Real-time Updates */}
       <LiveStatsCounter />
 
-      <Suspense fallback={<LoadingSpinner size="sm" message="Loading stats..." />}>
+      <Suspense fallback={
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+        </div>
+      }>
         <UserStatsCards
           level={user.level}
           xp={user.xp}
@@ -225,7 +236,13 @@ const Dashboard: React.FC = () => {
       {/* Live Leaderboard Widget */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <div className="lg:col-span-2">
-          <Suspense fallback={<LoadingSpinner size="sm" message="Loading task management..." />}>
+          <Suspense fallback={
+            <div className="space-y-4">
+              <TaskCardSkeleton />
+              <TaskCardSkeleton />
+              <TaskCardSkeleton />
+            </div>
+          }>
             <TaskManagementSection
               activeTab={activeTab}
               tasks={getCurrentTasks()}
@@ -284,7 +301,8 @@ const Dashboard: React.FC = () => {
         onCancel={handleCancelDelete}
         isDeleting={deleteTaskMutation.isPending}
       />
-    </div>
+      </MobileContainer>
+    </PageTransition>
   );
 };
 
