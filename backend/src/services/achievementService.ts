@@ -1,6 +1,8 @@
 import Achievement, { IAchievement } from '../models/Achievement';
 import User, { IUser } from '../models/User';
 import { Task, ITask } from '../models/Task';
+import UserAchievement, { IUserAchievement } from '../models/UserAchievement';
+import { socketService } from './socketService';
 
 interface AchievementRule {
   check: (user: IUser, task?: ITask) => boolean | Promise<boolean>;
@@ -328,5 +330,285 @@ export class AchievementService {
 
   static async getAllAchievements() {
     return await Achievement.find({ isActive: true }).sort({ category: 1, rarity: 1 });
+  }
+
+  // Enhanced progress tracking with UserAchievement model
+  static async updateAchievementProgress(userId: string, achievementId: string, progressValue: number, action: string) {
+    try {
+      const userAchievement = await UserAchievement.findOneAndUpdate(
+        { userId, achievementId },
+        {
+          $set: {
+            progress: progressValue,
+            lastProgressUpdate: new Date()
+          },
+          $push: {
+            progressHistory: {
+              date: new Date(),
+              value: progressValue,
+              action
+            }
+          }
+        },
+        { upsert: true, new: true }
+      ).populate('achievementId');
+
+      if (!userAchievement || !userAchievement.achievementId) return null;
+
+      const achievement = userAchievement.achievementId as unknown as IAchievement;
+      
+      // Check if achievement should be unlocked
+      if (!userAchievement.isUnlocked && progressValue >= achievement.criteria.target) {
+        await this.unlockAchievement(userId, achievementId);
+      }
+
+      return userAchievement;
+    } catch (error) {
+      console.error('Error updating achievement progress:', error);
+      return null;
+    }
+  }
+
+  // Unlock achievement and award rewards
+  static async unlockAchievement(userId: string, achievementId: string) {
+    try {
+      const user = await User.findById(userId);
+      const achievement = await Achievement.findById(achievementId);
+      
+      if (!user || !achievement) return null;
+
+      // Update UserAchievement
+      const userAchievement = await UserAchievement.findOneAndUpdate(
+        { userId, achievementId },
+        {
+          $set: {
+            isUnlocked: true,
+            unlockedAt: new Date(),
+            progress: achievement.criteria.target
+          }
+        },
+        { upsert: true, new: true }
+      );
+
+      // Award rewards to user
+      user.xp += achievement.rewards.xp;
+      user.coins += achievement.rewards.coins;
+      
+      // Add achievement to user's collection if not already there
+      if (!user.achievements.includes(achievement.name)) {
+        user.achievements.push(achievement.name);
+      }
+
+      await user.save();
+
+      // Send real-time notification
+      socketService.emitToUser(userId, 'achievement-unlocked', {
+        achievement: {
+          id: achievement._id,
+          name: achievement.name,
+          description: achievement.description,
+          iconUrl: achievement.iconUrl,
+          category: achievement.category,
+          rarity: achievement.rarity,
+          rewards: achievement.rewards
+        },
+        user: {
+          level: user.level,
+          xp: user.xp,
+          coins: user.coins
+        }
+      });
+
+      return {
+        achievement,
+        userAchievement,
+        rewards: achievement.rewards
+      };
+    } catch (error) {
+      console.error('Error unlocking achievement:', error);
+      return null;
+    }
+  }
+
+  // Get detailed progress for all achievements for a user
+  static async getUserAchievementProgress(userId: string) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return null;
+
+      const achievements = await Achievement.find({ isActive: true });
+      const userAchievements = await UserAchievement.find({ userId }).populate('achievementId');
+
+      const progressData = await Promise.all(achievements.map(async (achievement) => {
+        const userAchievement = userAchievements.find(ua => 
+          ua.achievementId && (ua.achievementId as any)._id.toString() === (achievement._id as any).toString()
+        );
+
+        let currentProgress = 0;
+
+        // Calculate current progress based on achievement type
+        switch (achievement.criteria.type) {
+          case 'task_count':
+            currentProgress = user.stats.totalTasksCompleted;
+            break;
+          case 'streak':
+            currentProgress = user.streak;
+            break;
+          case 'category_tasks':
+            const categoryTasks = await Task.countDocuments({
+              userId: user._id,
+              category: achievement.criteria.category,
+              status: 'completed'
+            });
+            currentProgress = categoryTasks;
+            break;
+          case 'focus_time':
+            currentProgress = user.stats.totalFocusTime || 0;
+            break;
+          default:
+            currentProgress = userAchievement?.progress || 0;
+        }
+
+        return {
+          achievement,
+          progress: Math.min(currentProgress, achievement.criteria.target),
+          target: achievement.criteria.target,
+          isUnlocked: userAchievement?.isUnlocked || false,
+          unlockedAt: userAchievement?.unlockedAt,
+          progressPercentage: Math.min((currentProgress / achievement.criteria.target) * 100, 100),
+          progressHistory: userAchievement?.progressHistory || []
+        };
+      }));
+
+      return progressData;
+    } catch (error) {
+      console.error('Error getting user achievement progress:', error);
+      return null;
+    }
+  }
+
+  // Check and update progress for specific achievement types after task completion
+  static async checkTaskCompletionAchievements(userId: string, task: ITask) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return [];
+
+      const achievements = await Achievement.find({ isActive: true });
+      const newUnlocks: any[] = [];
+
+      for (const achievement of achievements) {
+        const userAchievement = await UserAchievement.findOne({ userId, achievementId: achievement._id });
+        
+        if (userAchievement?.isUnlocked) continue;
+
+        let shouldUpdate = false;
+        let newProgress = 0;
+        let action = '';
+
+        switch (achievement.criteria.type) {
+          case 'task_count':
+            newProgress = user.stats.totalTasksCompleted;
+            action = 'task_completed';
+            shouldUpdate = true;
+            break;
+
+          case 'category_tasks':
+            if (task.category === achievement.criteria.category) {
+              const categoryTasks = await Task.countDocuments({
+                userId: user._id,
+                category: achievement.criteria.category,
+                status: 'completed'
+              });
+              newProgress = categoryTasks;
+              action = `${task.category}_task_completed`;
+              shouldUpdate = true;
+            }
+            break;
+
+          case 'early_completion':
+            if (task.completedAt) {
+              const completionHour = new Date(task.completedAt).getHours();
+              if (completionHour < 8) {
+                newProgress = (userAchievement?.progress || 0) + 1;
+                action = 'early_completion';
+                shouldUpdate = true;
+              }
+            }
+            break;
+
+          case 'late_completion':
+            if (task.completedAt) {
+              const completionHour = new Date(task.completedAt).getHours();
+              if (completionHour >= 22) {
+                newProgress = (userAchievement?.progress || 0) + 1;
+                action = 'late_completion';
+                shouldUpdate = true;
+              }
+            }
+            break;
+        }
+
+        if (shouldUpdate) {
+          const updatedAchievement = await this.updateAchievementProgress(
+            userId, 
+            (achievement._id as any).toString(), 
+            newProgress, 
+            action
+          );
+
+          if (updatedAchievement && newProgress >= achievement.criteria.target && !userAchievement?.isUnlocked) {
+            const unlockResult = await this.unlockAchievement(userId, (achievement._id as any).toString());
+            if (unlockResult) {
+              newUnlocks.push(unlockResult);
+            }
+          }
+        }
+      }
+
+      return newUnlocks;
+    } catch (error) {
+      console.error('Error checking task completion achievements:', error);
+      return [];
+    }
+  }
+
+  // Check streak-based achievements
+  static async checkStreakAchievements(userId: string) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return [];
+
+      const streakAchievements = await Achievement.find({ 
+        isActive: true,
+        'criteria.type': 'streak'
+      });
+
+      const newUnlocks: any[] = [];
+
+      for (const achievement of streakAchievements) {
+        const userAchievement = await UserAchievement.findOne({ userId, achievementId: achievement._id });
+        
+        if (userAchievement?.isUnlocked) continue;
+
+        if (user.streak >= achievement.criteria.target) {
+          await this.updateAchievementProgress(
+            userId,
+            (achievement._id as any).toString(),
+            user.streak,
+            'streak_updated'
+          );
+
+          const unlockResult = await this.unlockAchievement(userId, (achievement._id as any).toString());
+          if (unlockResult) {
+            newUnlocks.push(unlockResult);
+          }
+        }
+      }
+
+      return newUnlocks;
+    } catch (error) {
+      console.error('Error checking streak achievements:', error);
+      return [];
+    }
   }
 }

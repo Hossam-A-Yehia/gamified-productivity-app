@@ -144,3 +144,132 @@ export const initializeAchievements = async (req: AuthenticatedRequest, res: Res
     });
   }
 };
+
+export const getUserAchievementProgress = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const progressData = await AchievementService.getUserAchievementProgress(userId);
+    
+    if (!progressData) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: progressData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user achievement progress',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+export const getAchievementsByCategory = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { category } = req.params;
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const achievements = await Achievement.find({ 
+      isActive: true,
+      category: category 
+    }).sort({ rarity: 1 });
+
+    const progressData = await AchievementService.getUserAchievementProgress(userId);
+    
+    // Filter progress data for this category
+    const categoryProgress = progressData?.filter(item => 
+      item.achievement.category === category
+    ) || [];
+
+    res.json({
+      success: true,
+      data: {
+        achievements,
+        progress: categoryProgress
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch achievements by category',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+export const getAchievementStats = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const progressData = await AchievementService.getUserAchievementProgress(userId);
+    
+    if (!progressData) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const stats = {
+      total: progressData.length,
+      unlocked: progressData.filter(item => item.isUnlocked).length,
+      locked: progressData.filter(item => !item.isUnlocked).length,
+      byCategory: {
+        consistency: progressData.filter(item => item.achievement.category === 'consistency').length,
+        productivity: progressData.filter(item => item.achievement.category === 'productivity').length,
+        social: progressData.filter(item => item.achievement.category === 'social').length,
+        special: progressData.filter(item => item.achievement.category === 'special').length
+      },
+      byRarity: {
+        common: progressData.filter(item => item.achievement.rarity === 'common').length,
+        rare: progressData.filter(item => item.achievement.rarity === 'rare').length,
+        epic: progressData.filter(item => item.achievement.rarity === 'epic').length,
+        legendary: progressData.filter(item => item.achievement.rarity === 'legendary').length
+      },
+      unlockedByCategory: {
+        consistency: progressData.filter(item => item.achievement.category === 'consistency' && item.isUnlocked).length,
+        productivity: progressData.filter(item => item.achievement.category === 'productivity' && item.isUnlocked).length,
+        social: progressData.filter(item => item.achievement.category === 'social' && item.isUnlocked).length,
+        special: progressData.filter(item => item.achievement.category === 'special' && item.isUnlocked).length
+      },
+      completionPercentage: Math.round((progressData.filter(item => item.isUnlocked).length / progressData.length) * 100)
+    };
+
+    res.json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch achievement stats',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { TASK_STATUS, SORT_ORDER, DEFAULTS, MONGO_OPERATORS, REGEX_OPTIONS, ERROR_MESSAGES } from '../constants';
 import { socketService } from './socketService';
 import { LeaderboardService } from './leaderboardService';
+import { AchievementService } from './achievementService';
 
 export interface TaskFilters {
   status?: string;
@@ -253,6 +254,14 @@ export class TaskService {
 
     // Check for rank changes and broadcast leaderboard updates
     LeaderboardService.checkRankChanges(userId, oldXP, user.xp);
+
+    // Check for achievement unlocks
+    try {
+      await AchievementService.checkTaskCompletionAchievements(userId, task);
+      await AchievementService.checkStreakAchievements(userId);
+    } catch (error) {
+      console.error('Error checking achievements after task completion:', error);
+    }
 
     return {
       task,
