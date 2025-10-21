@@ -27,6 +27,7 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const FocusMode = lazy(() => import('./pages/FocusMode'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Friends = lazy(() => import('./pages/Friends'));
 const PWADemo = lazy(() => import('./pages/PWADemo'));
 
 const queryClient = new QueryClient({
@@ -208,6 +209,18 @@ const AppRoutes: React.FC = () => {
               <Layout>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Settings />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.FRIENDS}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Friends />
                 </Suspense>
               </Layout>
             </ProtectedRoute>

@@ -69,6 +69,7 @@ export const ROUTES = {
   CHALLENGE_DETAIL: '/challenges/:id',
   FOCUS: '/focus',
   SETTINGS: '/settings',
+  FRIENDS: '/friends',
   PWA_DEMO: '/pwa-demo',
 } as const;
 

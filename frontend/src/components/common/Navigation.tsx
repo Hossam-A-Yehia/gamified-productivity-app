@@ -13,7 +13,8 @@ import {
   LogOut, 
   Menu, 
   X,
-  Bell
+  Bell,
+  UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../utils/constants';
@@ -58,6 +59,12 @@ const navigationItems = [
     path: ROUTES.LEADERBOARD,
     icon: Users,
     description: 'See how you rank'
+  },
+  {
+    name: 'Friends',
+    path: ROUTES.FRIENDS,
+    icon: UserPlus,
+    description: 'Connect with friends'
   },
 ];
 
