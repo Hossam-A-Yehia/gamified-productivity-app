@@ -28,6 +28,7 @@ const FocusMode = lazy(() => import('./pages/FocusMode'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Friends = lazy(() => import('./pages/Friends'));
+const Chat = lazy(() => import('./pages/Chat'));
 const Notifications = lazy(() => import('./pages/Notifications'));
 const PWADemo = lazy(() => import('./pages/PWADemo'));
 
@@ -222,6 +223,18 @@ const AppRoutes: React.FC = () => {
               <Layout>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Friends />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.CHAT}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Chat />
                 </Suspense>
               </Layout>
             </ProtectedRoute>

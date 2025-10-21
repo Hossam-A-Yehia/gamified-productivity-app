@@ -221,24 +221,142 @@ export class SocketService {
   public emitToUser(userId: string, event: string, data: any) {
     try {
       const socketManager = getSocketManager();
-      socketManager.getSocketInstance().to(`user:${userId}`).emit(event, {
-        ...data,
-        timestamp: new Date()
-      });
+      socketManager.getSocketInstance().to(`user:${userId}`).emit(event, data);
     } catch (error) {
-      console.error(`Error emitting ${event} to user:`, error);
+      console.error(`Error emitting ${event} to user ${userId}:`, error);
     }
   }
 
-  public emitToChallenge(challengeId: string, event: string, data: any) {
+  public emitToRoom(room: string, event: string, data: any) {
     try {
       const socketManager = getSocketManager();
-      socketManager.getSocketInstance().to(`challenge:${challengeId}`).emit(event, {
-        ...data,
+      socketManager.getSocketInstance().to(room).emit(event, data);
+    } catch (error) {
+      console.error(`Error emitting ${event} to room ${room}:`, error);
+    }
+  }
+
+  // Chat-specific events
+  public emitNewMessage(chatId: string, message: any, senderId: string) {
+    try {
+      const socketManager = getSocketManager();
+      // Emit to all chat participants except sender
+      socketManager.getSocketInstance().to(`chat:${chatId}`).except(`user:${senderId}`).emit('new-message', {
+        chatId,
+        message,
         timestamp: new Date()
       });
     } catch (error) {
-      console.error(`Error emitting ${event} to challenge:`, error);
+      console.error('Error emitting new message:', error);
+    }
+  }
+
+  public emitMessageEdited(chatId: string, messageId: string, newContent: string, editorId: string) {
+    try {
+      const socketManager = getSocketManager();
+      socketManager.getSocketInstance().to(`chat:${chatId}`).emit('message-edited', {
+        chatId,
+        messageId,
+        newContent,
+        editorId,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error emitting message edited:', error);
+    }
+  }
+
+  public emitMessageDeleted(chatId: string, messageId: string, deleterId: string) {
+    try {
+      const socketManager = getSocketManager();
+      socketManager.getSocketInstance().to(`chat:${chatId}`).emit('message-deleted', {
+        chatId,
+        messageId,
+        deleterId,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error emitting message deleted:', error);
+    }
+  }
+
+  public emitTypingStart(chatId: string, userId: string, userName: string) {
+    try {
+      const socketManager = getSocketManager();
+      socketManager.getSocketInstance().to(`chat:${chatId}`).except(`user:${userId}`).emit('typing-start', {
+        chatId,
+        userId,
+        userName,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error emitting typing start:', error);
+    }
+  }
+
+  public emitTypingStop(chatId: string, userId: string) {
+    try {
+      const socketManager = getSocketManager();
+      socketManager.getSocketInstance().to(`chat:${chatId}`).except(`user:${userId}`).emit('typing-stop', {
+        chatId,
+        userId,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error emitting typing stop:', error);
+    }
+  }
+
+  public emitUserOnlineStatus(userId: string, isOnline: boolean) {
+    try {
+      const socketManager = getSocketManager();
+      // Emit to all users who have this user in their chats
+      socketManager.getSocketInstance().emit('user-status-changed', {
+        userId,
+        isOnline,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error emitting user status:', error);
+    }
+  }
+
+  public emitMessageReaction(chatId: string, messageId: string, reaction: any, userId: string) {
+    try {
+      const socketManager = getSocketManager();
+      socketManager.getSocketInstance().to(`chat:${chatId}`).emit('message-reaction', {
+        chatId,
+        messageId,
+        reaction,
+        userId,
+        timestamp: new Date()
+      });
+    } catch (error) {
+      console.error('Error emitting message reaction:', error);
+    }
+  }
+
+  public joinChatRoom(socketId: string, chatId: string) {
+    try {
+      const socketManager = getSocketManager();
+      const socket = socketManager.getSocketInstance().sockets.sockets.get(socketId);
+      if (socket) {
+        socket.join(`chat:${chatId}`);
+      }
+    } catch (error) {
+      console.error('Error joining chat room:', error);
+    }
+  }
+
+  public leaveChatRoom(socketId: string, chatId: string) {
+    try {
+      const socketManager = getSocketManager();
+      const socket = socketManager.getSocketInstance().sockets.sockets.get(socketId);
+      if (socket) {
+        socket.leave(`chat:${chatId}`);
+      }
+    } catch (error) {
+      console.error('Error leaving chat room:', error);
     }
   }
 

@@ -70,6 +70,7 @@ export const ROUTES = {
   FOCUS: '/focus',
   SETTINGS: '/settings',
   FRIENDS: '/friends',
+  CHAT: '/chat',
   NOTIFICATIONS: '/notifications',
   PWA_DEMO: '/pwa-demo',
 } as const;

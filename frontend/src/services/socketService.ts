@@ -40,9 +40,21 @@ interface SocketEvents {
   
   // Streak events
   'streak-updated': (data: { streak: { current: number; previous: number; isNewRecord: boolean }; timestamp: Date }) => void;
+  
+  // Chat events
+  'new-message': (data: { chatId: string; message: any; timestamp: Date }) => void;
+  'message-edited': (data: { chatId: string; messageId: string; newContent: string; editorId: string; timestamp: Date }) => void;
+  'message-deleted': (data: { chatId: string; messageId: string; deleterId: string; timestamp: Date }) => void;
+  'message-reaction': (data: { chatId: string; messageId: string; reaction: any; userId: string; timestamp: Date }) => void;
+  'typing-start': (data: { chatId: string; userId: string; userName: string; timestamp: Date }) => void;
+  'typing-stop': (data: { chatId: string; userId: string; timestamp: Date }) => void;
+  'user-status-changed': (data: { userId: string; isOnline: boolean; timestamp: Date }) => void;
+  'chat-marked-read': (data: { chatId: string }) => void;
+  'chat-unread-updated': (data: { chatId: string; unreadCount: number }) => void;
 }
 
 export class SocketService {
+  private static instance: SocketService;
   private socket: Socket | null = null;
   private eventListeners: Map<string, Function[]> = new Map();
   private isConnected = false;
@@ -50,9 +62,16 @@ export class SocketService {
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
 
-  constructor() {
+  private constructor() {
     // Initialize socket connection when service is created
     this.connect();
+  }
+
+  public static getInstance(): SocketService {
+    if (!SocketService.instance) {
+      SocketService.instance = new SocketService();
+    }
+    return SocketService.instance;
   }
 
   private connect() {
@@ -301,6 +320,31 @@ export class SocketService {
     }
   }
 
+  // Chat-specific methods
+  public joinChatRoom(chatId: string) {
+    if (this.socket) {
+      this.socket.emit('join-chat', { chatId });
+    }
+  }
+
+  public leaveChatRoom(chatId: string) {
+    if (this.socket) {
+      this.socket.emit('leave-chat', { chatId });
+    }
+  }
+
+  public emitTypingStart(chatId: string) {
+    if (this.socket) {
+      this.socket.emit('typing-start', { chatId });
+    }
+  }
+
+  public emitTypingStop(chatId: string) {
+    if (this.socket) {
+      this.socket.emit('typing-stop', { chatId });
+    }
+  }
+
   // Utility methods
   public isConnectedToServer(): boolean {
     return this.isConnected;
@@ -322,4 +366,4 @@ export class SocketService {
 }
 
 // Export singleton instance
-export const socketService = new SocketService();
+export const socketService = SocketService.getInstance();

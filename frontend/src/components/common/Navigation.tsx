@@ -14,7 +14,8 @@ import {
   Menu, 
   X,
   Bell,
-  UserPlus
+  UserPlus,
+  MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../utils/constants';
@@ -66,6 +67,12 @@ const navigationItems = [
     path: ROUTES.FRIENDS,
     icon: UserPlus,
     description: 'Connect with friends'
+  },
+  {
+    name: 'Chat',
+    path: ROUTES.CHAT,
+    icon: MessageCircle,
+    description: 'Message your friends'
   },
   {
     name: 'Notifications',

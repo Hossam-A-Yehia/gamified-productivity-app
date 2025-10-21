@@ -16,6 +16,7 @@ import challengeRoutes from "./routes/challenges";
 import focusRoutes from "./routes/focus";
 import profileRoutes from "./routes/profile";
 import notificationRoutes from "./routes/notifications";
+import chatRoutes from "./routes/chats";
 import { errorHandler, notFound } from "./middlewares/errorHandler";
 
 
@@ -63,6 +64,7 @@ app.use("/api/challenges", challengeRoutes);
 app.use("/api/focus", focusRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/chats", chatRoutes);
 
 app.get("/api/ping", (_, res) => {
   res.json({ 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { 
   Trophy, 
   Star, 
@@ -227,24 +227,10 @@ export const RealtimeNotifications: React.FC = () => {
   }, [friendEvents]);
 
   // Connection status indicator
-  const isConnected = taskEvents.isConnected;
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <AnimatePresence>        
-        {isConnected && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg p-3 mb-2 shadow-lg"
-          >
-            <div className="flex items-center gap-2 text-green-800 dark:text-green-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-sm font-medium">Real-time updates active</span>
-            </div>
-          </motion.div>
-        )}
       </AnimatePresence>
     </div>
   );
