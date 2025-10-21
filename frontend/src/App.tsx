@@ -28,6 +28,7 @@ const FocusMode = lazy(() => import('./pages/FocusMode'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Friends = lazy(() => import('./pages/Friends'));
+const Notifications = lazy(() => import('./pages/Notifications'));
 const PWADemo = lazy(() => import('./pages/PWADemo'));
 
 const queryClient = new QueryClient({
@@ -221,6 +222,18 @@ const AppRoutes: React.FC = () => {
               <Layout>
                 <Suspense fallback={<LoadingSpinner />}>
                   <Friends />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path={ROUTES.NOTIFICATIONS}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Notifications />
                 </Suspense>
               </Layout>
             </ProtectedRoute>

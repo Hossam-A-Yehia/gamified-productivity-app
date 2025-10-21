@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../utils/constants';
+import { useUnreadCount } from '../../hooks/useNotifications';
 
 interface NavigationProps {
   className?: string;
@@ -66,6 +67,12 @@ const navigationItems = [
     icon: UserPlus,
     description: 'Connect with friends'
   },
+  {
+    name: 'Notifications',
+    path: ROUTES.NOTIFICATIONS,
+    icon: Bell,
+    description: 'View your notifications'
+  },
 ];
 
 export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
@@ -73,6 +80,7 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: unreadCount = 0 } = useUnreadCount();
 
   const handleLogout = async () => {
     try {
@@ -125,7 +133,26 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
                 Level {user?.level || 1} • {user?.xp || 0} XP
               </p>
             </div>
-            <Bell className="w-5 h-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer" />
+            {/* Notification Bell */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(ROUTES.NOTIFICATIONS)}
+              className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <Bell className="w-6 h-6" />
+              
+              {/* Unread Badge */}
+              {unreadCount > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </motion.div>
+              )}
+            </motion.button>
           </div>
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-2">
@@ -221,7 +248,27 @@ export const Navigation: React.FC<NavigationProps> = ({ className = '' }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Bell className="w-6 h-6 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer" />
+            {/* Mobile Notification Bell */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate(ROUTES.NOTIFICATIONS)}
+              className="relative p-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <Bell className="w-6 h-6" />
+              
+              {/* Unread Badge */}
+              {unreadCount > 0 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </motion.div>
+              )}
+            </motion.button>
+            
             <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
               {user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
