@@ -10,6 +10,9 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 import { Layout } from './components/common/Layout';
 import RealtimeNotifications from './components/common/RealtimeNotifications';
 import TaskCompletionCelebration from './components/tasks/TaskCompletionCelebration';
+import PWAInstallBanner from './components/common/PWAInstallBanner';
+import OfflineIndicator from './components/common/OfflineIndicator';
+import PWAUpdatePrompt from './components/common/PWAUpdatePrompt';
 
 const Login = lazy(() => import('./pages/auth/Login/Login'));
 const Register = lazy(() => import('./pages/auth/Register/Register'));
@@ -24,6 +27,7 @@ const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const FocusMode = lazy(() => import('./pages/FocusMode'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
+const PWADemo = lazy(() => import('./pages/PWADemo'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -209,6 +213,18 @@ const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path={ROUTES.PWA_DEMO}
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <PWADemo />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
         {/* Redirect root to dashboard */}
         <Route path="/" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
 
@@ -225,9 +241,12 @@ const App: React.FC = () => {
       <GoogleOAuthProvider>
         <Router>
           <div className="App">
+            <PWAInstallBanner />
             <AppRoutes />
             <RealtimeNotifications />
             <TaskCompletionCelebration />
+            <OfflineIndicator />
+            <PWAUpdatePrompt />
             <Toaster 
               position="top-center"
               expand={true}
