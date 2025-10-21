@@ -28,11 +28,11 @@ export const TaskList: React.FC<TaskListProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[...Array(2)].map((_, index) => (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 animate-pulse"
+            className="bg-white p-6 h-full dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 animate-pulse"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full"></div>

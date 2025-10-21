@@ -240,7 +240,6 @@ const Dashboard: React.FC = () => {
             <div className="space-y-4">
               <TaskCardSkeleton />
               <TaskCardSkeleton />
-              <TaskCardSkeleton />
             </div>
           }>
             <TaskManagementSection
