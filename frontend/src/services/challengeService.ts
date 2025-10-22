@@ -186,7 +186,7 @@ class ChallengeService {
 
   calculateChallengeProgress(challenge: Challenge, userId: string): number {
     const participant = challenge.participants.find(p => 
-      (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === userId
+      (typeof p.userId === 'string' ? p.userId : (p.userId as any)?._id) === userId
     );
     if (!participant) return 0;
     
@@ -199,7 +199,7 @@ class ChallengeService {
 
   isChallengeCompleted(challenge: Challenge, userId: string): boolean {
     const participant = challenge.participants.find(p => 
-      (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === userId
+      (typeof p.userId === 'string' ? p.userId : (p.userId as any)?._id) === userId
     );
     return participant?.isCompleted || false;
   }
@@ -215,7 +215,7 @@ class ChallengeService {
     
     // Check if user is already participating
     if (userId && challenge.participants.some(p => 
-      (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === userId
+      (typeof p.userId === 'string' ? p.userId : (p.userId as any)?._id) === userId
     )) {
       return false;
     }

@@ -27,10 +27,10 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
   const difficulty = CHALLENGE_DIFFICULTIES.find(d => d.value === challenge.difficulty);
   
   const isParticipating = challenge.participants.some(p => 
-    (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === user?.id
+    (typeof p.userId === 'string' ? p.userId : (p.userId as any)?._id) === user?.id
   );
   const userProgress = challenge.participants.find(p => 
-    (typeof p.userId === 'string' ? p.userId : (p.userId as any)._id) === user?.id
+    (typeof p.userId === 'string' ? p.userId : (p.userId as any)?._id) === user?.id
   )?.progress.overallProgress || 0;
   const canJoin = challengeService.canJoinChallenge(challenge, user?.id);
   
